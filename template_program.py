@@ -155,7 +155,7 @@ def check_log() -> None:
 
 
 def main():
-    print("Press 'l' to log, 'c' to check, 'count' to count, 'g' to get, 'recall' to recall, 's' to solve, 'q' to quit.")
+    print("Press 'l' to log, 'c' to check, 'count' to count, 'g' to get, 'recall' to recall, 's' to solve, 't' to create tree, 'q' to quit.")
     while True:
         key = input("> ").strip().lower()
         if key == "l":
@@ -181,6 +181,14 @@ def main():
         elif key == "s":
             n = input("Cluster number to solve: ").strip()
             result = solve_problem(int(n))
+            if result:
+                for row in result:
+                    print(";".join(row))
+            else:
+                print("No result.")
+        elif key == "t":
+            n = input("Cluster number to create tree for: ").strip()
+            result = create_tree(int(n))
             if result:
                 for row in result:
                     print(";".join(row))
