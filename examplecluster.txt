@@ -1,0 +1,2 @@
+the robot is cutting a tree;a;stat;robot001;thing553;;30;50;
+;c;loc;arm001;thing001;motion;25;45;

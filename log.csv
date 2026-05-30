@@ -27,3 +27,7 @@ the robot saws small trees;c;loc;grasper001;tree002;;20;40;
 ;;;;;;;;
 its wheel1 is turning;c;loc;wheel001;;rotation;20;40;
 ;;;;;;;;
+;;;;;;;;
+the robot is cutting a tree;a;stat;robot001;thing553;;30;50;
+;c;loc;arm001;thing001;motion;25;45;
+;;;;;;;;
