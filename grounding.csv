@@ -1,0 +1,44 @@
+item;grounding
+wheel;support
+wheel;transport
+wheel;stat form round
+grasper;force
+grasper;fix
+grasper;tool
+tree;plant
+tree;stat material wood 70
+plant;nature
+plant;stat material wood 10
+plant;stat material cellulose 40
+plant;stat size 7
+vase;container
+saw;tool
+saw;force
+saw;transport
+dumper bed;container
+-;-
+car;container
+car;transport
+car;stat size 20
+car;stat hardness 40
+house;building
+house;stat size 30
+house;container
+building;container
+building;support
+computer;data
+computer;machine
+computer;data
+machine;pattern
+flower;plant
+anger;stat emo angry
+table;support
+table;stat size 10
+telephone;data
+telephone;channel
+dog;animate
+dog;stat size 8
+cat;animate
+cat;stat size 7
+war;problem
+war;conflict

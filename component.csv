@@ -1,0 +1,12 @@
+component;quantity;function
+leg;4;locomotion
+tipper_bed;1;unloading
+motor_leg;4;leg actuation
+motor_saw;1;saw actuation
+motor_tipper;1;bed actuation
+saw;1;cutting
+sensor_tilt;1;balance
+sensor_force;2;grip and load
+sensor_proximity;4;obstacle detection
+camera;1;vision
+brain;1;control

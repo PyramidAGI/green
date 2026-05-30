@@ -1,0 +1,30 @@
+                   tree cutting robot fails
+                  /             |              \
+        robot won't           cutting           robot
+          move                 fails           tips over
+         /   |   \           /   |   \          /     \
+   battery  motor  wheel   blade  saw  grip  terrain  stabilizer
+     dead   burnt  stuck    dull stalls slip   steep    broken
+            coil  debris         wood  jaw   slope  leg  actuator
+           burnt  caught         hard  worn   too  stuck   dead
+                                             steep
+
+node 0:  tree cutting robot fails
+node 1:  robot won't move
+node 2:  cutting fails
+node 3:  robot tips over
+node 4:  battery is dead
+node 5:  motor is burnt
+node 6:  wheel is stuck
+node 7:  blade is dull
+node 8:  saw stalls
+node 9:  grip slips
+node 10: terrain is too steep
+node 11: stabilizer is broken
+node 12: motor coil is burnt
+node 13: debris caught in wheel
+node 14: wood is too hard
+node 15: grip jaw is worn
+node 16: slope exceeded limit
+node 17: stabilizer leg is stuck
+node 18: actuator is dead

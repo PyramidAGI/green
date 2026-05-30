@@ -1,0 +1,39 @@
+14:00 29/05/2026
+
+
+make green directory for tree cutting robot
+
+causal diagram -> twin triangle -> double loop is GREAT
+
+---
+hermes agent -> TWM -> sensors
+
+rpi_reader.py is wonderful
+bus.pi is also good
+
+---
+so i am very enthusiastic about causal + twin triangle !! we attach it to all component nodes
+-> each node has a log. bus.py takes care of transfer between them
+-> some nodes need more memory or thinking-power than others or may need to perform LLM API calls.
+-> this functionality has been provided for by template_program.py
+
+->memory recall/refresh is very important
+
+Darwinistic Robot uses autocatalysis
+
+we can make a tree cutting robot like this
+
+the problem tree is the eureka
+
+-------
+we can make a POC with little servos and a virtual camera
+
+attach to each component in component.csv a causal + a twin triangle
+
+-------
+question: how does a problem tree relate to causal diagram and log?
+
+---
+sooo if we have the template_program.py, bus.py, maybe tree.py, grounding.csv, log.csv, rpi_reader.py, numbered_quarks.csv, component.csv
+THEN WE HAVE THE BASIS FOR A DARWINISTIC, AUTOCATALYSIS AGI!!
+
