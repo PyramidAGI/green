@@ -37,3 +37,5 @@ question: how does a problem tree relate to causal diagram and log?
 sooo if we have the template_program.py, bus.py, maybe tree.py, grounding.csv, log.csv, rpi_reader.py, numbered_quarks.csv, component.csv
 THEN WE HAVE THE BASIS FOR A DARWINISTIC, AUTOCATALYSIS AGI!!
 
+--
+a cat = cat000, the cat=cat001, luna=cat828
