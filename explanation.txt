@@ -3,6 +3,10 @@
 
 make green directory for tree cutting robot
 
+Jansen electro tipper:
+https://www.youtube.com/watch?v=NqsNkXc2DE4
+
+
 causal diagram -> twin triangle -> double loop is GREAT
 
 ---
@@ -39,3 +43,12 @@ THEN WE HAVE THE BASIS FOR A DARWINISTIC, AUTOCATALYSIS AGI!!
 
 --
 a cat = cat000, the cat=cat001, luna=cat828
+
+---
+template_program.py:
+ print("Press 'l' to log, 'c' to check, 'count' to count, 'g' to get, 'recall' to recall, 's' to solve, 'q' to quit.")
+
+---
+
+so if we now combine all of this:
+we can use the 'green' directory for making a darwinistic, autocatalysis robot ai system
