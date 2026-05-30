@@ -87,7 +87,7 @@ def main():
     print("\n=== log.csv ===")
     blocks = read_blocks("log.csv")
     for i, block in enumerate(blocks):
-        print(f"\n[Block {i + 1}]")
+        print(f"\n[Cluster {i + 1}]")
         if block["rows"]:
             print_table(block["rows"], block["sentence"])
 
