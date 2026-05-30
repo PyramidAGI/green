@@ -27,7 +27,7 @@ Darwinistic Robot uses autocatalysis
 
 we can make a tree cutting robot like this
 
-the problem tree is the eureka
+the problem tree will help a lot
 
 -------
 we can make a POC with little servos and a virtual camera
@@ -38,7 +38,7 @@ attach to each component in component.csv a causal + a twin triangle
 question: how does a problem tree relate to causal diagram and log?
 
 ---
-sooo if we have the template_program.py, bus.py, maybe tree.py, grounding.csv, log.csv, rpi_reader.py, numbered_quarks.csv, component.csv
+if we have the template_program.py, bus.py, maybe tree.py, grounding.csv, log.csv, rpi_reader.py, numbered_quarks.csv, component.csv
 THEN WE HAVE THE BASIS FOR A DARWINISTIC, AUTOCATALYSIS AGI!!
 
 --
@@ -50,5 +50,26 @@ template_program.py:
 
 ---
 
-so if we now combine all of this:
+if we now combine all of this:
 we can use the 'green' directory for making a darwinistic, autocatalysis robot ai system
+
+---
+
+the tree can be reduced to only a causal and a double loop for every node
+in the future the tree can be expanded again
+
+---
+what is the format we send to the LLM?
+for instance: send a navigation problem to the llm: obstacle = big tree
+for instance: solve a causal diagram for criteria: #number of obstacles for tree-cutting robot
+
+alexander:
+it started with the hermes schematic/TWM
+then it continued with the simple paper set up i sent
+then we got Demis Hassabis' definition for whats missing for AGI
+then we got the template_program and bus.py for making simple programs; see the Yellow_Architecture.png schematic
+then we got tree.py to make darwinistic trees, can combine anything: components, problems, parts of a brain
+then we have grounding in grounding.csv
+WHEN WE SUM THIS WE GET : A DARWINISTIC AUTOCATALYSIS MACHINE
+idea: make a video about this??
+

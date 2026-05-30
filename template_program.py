@@ -131,6 +131,12 @@ def solve_problem(cluster_number: int) -> list[list[str]]:
     return []
 
 
+def create_tree(cluster_number: int) -> list[list[str]]:
+    # Build a problem tree from the given cluster.
+    # TODO: implement
+    return []
+
+
 def check_log() -> None:
     if not get_log_file().exists():
         print("log.csv not found.")
