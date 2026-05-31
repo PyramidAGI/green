@@ -131,8 +131,10 @@ def solve_problem(cluster_number: int) -> list[list[str]]:
     return []
 
 
-def create_tree(cluster_number: int = -1) -> list[list[str]]:
-    # Build a problem tree from the given cluster via LLM. Defaults to -1 (most recently added cluster).
+def create_tree(cluster_number: int | None = None) -> list[list[str]]:
+    # Build a problem tree from the given cluster via LLM. Pass no argument to skip the API call.
+    if cluster_number is None:
+        return []
     cluster = get_cluster(cluster_number)
     if not cluster:
         return []
