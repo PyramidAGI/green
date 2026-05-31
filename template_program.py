@@ -131,9 +131,20 @@ def solve_problem(cluster_number: int) -> list[list[str]]:
     return []
 
 
-def create_tree(cluster_number: int) -> list[list[str]]:
-    # Build a problem tree from the given cluster.
-    # TODO: implement
+def create_tree(cluster_number: int = -1) -> list[list[str]]:
+    # Build a problem tree from the given cluster via LLM. Defaults to -1 (most recently added cluster).
+    cluster = get_cluster(cluster_number)
+    if not cluster:
+        return []
+    # TODO: parse response into list of rows
+    import anthropic
+    client = anthropic.Anthropic()
+    response = client.messages.create(
+        model="claude-opus-4-7",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": str(cluster)}],
+    )
+    _ = response.content[0].text
     return []
 
 
