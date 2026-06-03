@@ -69,9 +69,12 @@ TRIANGLE_DOT = 2
 
 dot_labels = {0: "orchestrator", 1: "causal diagram", 2: "twin triangle", 3: "bus", 4: "log"}
 triangle_node_labels = {6: "sensor", 8: "actuator"}
+_node_indices = [i for i in range(9) if i not in triangle_node_labels]
+triangle_node_numbers = {dot: n + 1 for n, dot in enumerate(_node_indices)}
 
 current = 0
 orchestrator_mode = False
+current_orchestrator = 1
 factor_mode = False
 current_factor = 1
 triangle_mode = False
@@ -81,16 +84,19 @@ csv_error = None
 
 
 def get_bottom_word():
+    if orchestrator_mode:
+        return f"orchestrator {current_orchestrator}"
     if factor_mode:
         return f"factor {current_factor}"
-    if triangle_mode and current in triangle_node_labels:
-        return triangle_node_labels[current]
+    if triangle_mode:
+        return triangle_node_labels[current] if current in triangle_node_labels else f"node {triangle_node_numbers[current]}"
     return None
 
 
 def load_csv(word):
     global csv_lines, csv_error
-    path = os.path.join(SCRIPT_DIR, word + ".csv")
+    filename = word.replace(" ", "") + ".csv"
+    path = os.path.join(SCRIPT_DIR, filename)
     try:
         with open(path, newline="", encoding="utf-8") as f:
             rows = list(csv.reader(f))
@@ -98,7 +104,7 @@ def load_csv(word):
         csv_error = None
     except FileNotFoundError:
         csv_lines = []
-        csv_error = f"not found: {word}.csv"
+        csv_error = f"not found: {filename}"
 
 
 clock = pygame.time.Clock()
@@ -114,7 +120,10 @@ while True:
                 word = get_bottom_word()
                 if word:
                     load_csv(word)
-                elif orchestrator_mode or triangle_mode:
+                elif orchestrator_mode:
+                    current = (current - 1) % 9
+                    current_orchestrator = ((current_orchestrator - 2) % 9) + 1
+                elif triangle_mode:
                     current = (current - 1) % 9
                 elif factor_mode:
                     current = (current - 1) % 9
@@ -138,6 +147,7 @@ while True:
             elif orchestrator_mode:
                 if buttons[1].hit(event.pos):
                     current = (current + 1) % 9
+                    current_orchestrator = (current_orchestrator % 9) + 1
             elif factor_mode:
                 if buttons[1].hit(event.pos):
                     current = (current + 1) % 9
@@ -149,6 +159,7 @@ while True:
                 if buttons[1].hit(event.pos) and current == ORCHESTRATOR_DOT:
                     orchestrator_mode = True
                     current = 0
+                    current_orchestrator = 1
                     buttons[1].active = True
                 elif buttons[1].hit(event.pos) and current == CAUSAL_DOT:
                     factor_mode = True
@@ -182,6 +193,8 @@ while True:
     if orchestrator_mode:
         label = font.render(dot_labels[ORCHESTRATOR_DOT], True, GREEN_LIT)
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
+        orch_label = font.render(f"orchestrator {current_orchestrator}", True, BTN_TEXT)
+        screen.blit(orch_label, orch_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
 
     if factor_mode:
         label = font.render(dot_labels[CAUSAL_DOT], True, GREEN_LIT)
@@ -192,9 +205,9 @@ while True:
     if triangle_mode:
         label = font.render(dot_labels[TRIANGLE_DOT], True, GREEN_LIT)
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
-        if current in triangle_node_labels:
-            node_label = font.render(triangle_node_labels[current], True, BTN_TEXT)
-            screen.blit(node_label, node_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
+        node_text = triangle_node_labels[current] if current in triangle_node_labels else f"node {triangle_node_numbers[current]}"
+        node_label = font.render(node_text, True, BTN_TEXT)
+        screen.blit(node_label, node_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
 
     # CSV content in left panel below buttons
     if csv_error:
