@@ -149,6 +149,8 @@ while True:
                 csv_lines, csv_error = [], None
             elif buttons[0].hit(event.pos):
                 current = (current + 1) % 9
+                if current == 8:
+                    pinned_word = None
             elif orchestrator_mode:
                 if buttons[1].hit(event.pos):
                     current = (current + 1) % 9
