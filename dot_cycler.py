@@ -53,6 +53,7 @@ buttons = [
     Button(left_cx - btn_w // 2, 185, btn_w, btn_h, "Button 2"),
     Button(left_cx - btn_w // 2, 250, btn_w, btn_h, "Button 3"),
 ]
+clear_btn = Button(left_cx - 36, 60, 72, 28, "clear")
 
 # 3x3 dot grid
 DOT_R = 16
@@ -66,6 +67,7 @@ dots = [(grid_ox + c * SPACING, grid_oy + r * SPACING) for r in range(3) for c i
 ORCHESTRATOR_DOT = 0
 CAUSAL_DOT = 1
 TRIANGLE_DOT = 2
+LOG_DOT = 4
 
 dot_labels = {0: "orchestrator", 1: "causal diagram", 2: "twin triangle", 3: "bus", 4: "log"}
 triangle_node_labels = {6: "sensor", 8: "actuator"}
@@ -78,6 +80,8 @@ current_orchestrator = 1
 factor_mode = False
 current_factor = 1
 triangle_mode = False
+log_mode = False
+log_node_labels = {0: "get", 1: "append"}
 
 csv_lines = []
 csv_error = None
@@ -91,6 +95,8 @@ def get_bottom_word():
         return f"factor {current_factor}"
     if triangle_mode:
         return triangle_node_labels[current] if current in triangle_node_labels else f"node {triangle_node_numbers[current]}"
+    if log_mode:
+        return log_node_labels.get(current)
     return None
 
 
@@ -117,6 +123,9 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if pinned_word and clear_btn.hit(event.pos):
+                pinned_word = None
+                continue
             # Button 3: read CSV if a bottom word is showing
             if buttons[2].hit(event.pos):
                 word = get_bottom_word()
@@ -147,10 +156,13 @@ while True:
                 triangle_mode = False
                 buttons[1].active = False
                 csv_lines, csv_error = [], None
+            elif buttons[0].hit(event.pos) and log_mode:
+                pinned_word = get_bottom_word()
+                log_mode = False
+                buttons[1].active = False
+                csv_lines, csv_error = [], None
             elif buttons[0].hit(event.pos):
                 current = (current + 1) % 9
-                if current == 8:
-                    pinned_word = None
             elif orchestrator_mode:
                 if buttons[1].hit(event.pos):
                     current = (current + 1) % 9
@@ -162,6 +174,16 @@ while True:
             elif triangle_mode:
                 if buttons[1].hit(event.pos):
                     current = (current + 1) % 9
+            elif log_mode:
+                if buttons[1].hit(event.pos):
+                    current = (current + 1) % 9
+                elif buttons[2].hit(event.pos):
+                    word = get_bottom_word()
+                    if word:
+                        load_csv(word)
+                    else:
+                        current = (current - 1) % 9
+                    continue
             else:
                 if buttons[1].hit(event.pos) and current == ORCHESTRATOR_DOT:
                     orchestrator_mode = True
@@ -177,12 +199,18 @@ while True:
                     triangle_mode = True
                     current = 0
                     buttons[1].active = True
+                elif buttons[1].hit(event.pos) and current == LOG_DOT:
+                    log_mode = True
+                    current = 0
+                    buttons[1].active = True
 
     screen.fill(BG)
     pygame.draw.line(screen, PANEL_DIV, (210, 20), (210, HEIGHT - 20), 2)
 
     for btn in buttons:
         btn.draw(screen)
+    if pinned_word:
+        clear_btn.draw(screen)
 
     for i, (x, y) in enumerate(dots):
         lit = i == current
@@ -192,13 +220,20 @@ while True:
         if lit:
             pygame.draw.circle(screen, (150, 255, 150), (x, y), r + 4, 2)
 
+    if log_mode:
+        label = font.render(dot_labels[LOG_DOT], True, GREEN_LIT)
+        screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
+        if current in log_node_labels:
+            log_label = font.render(log_node_labels[current], True, BTN_TEXT)
+            screen.blit(log_label, log_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
+
     # Pinned word in red, always shown below the current bottom word
     if pinned_word:
         pinned_surf = font.render(pinned_word, True, RED_TEXT)
         screen.blit(pinned_surf, pinned_surf.get_rect(centerx=grid_cx, top=grid_bottom + 54))
 
     # Top label (above grid)
-    if not orchestrator_mode and not factor_mode and not triangle_mode and current in dot_labels:
+    if not orchestrator_mode and not factor_mode and not triangle_mode and not log_mode and current in dot_labels:
         label = font.render(dot_labels[current], True, GREEN_LIT)
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
 
