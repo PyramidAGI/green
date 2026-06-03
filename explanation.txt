@@ -46,7 +46,7 @@ a cat = cat000, the cat=cat001, luna=cat828
 
 ---
 template_program.py:
- print("Press 'l' to log, 'c' to check, 'count' to count, 'g' to get, 'recall' to recall, 's' to solve, 'q' to quit.")
+ print("Press 'l' to log, 'c' to check, 'count' to count, 'g' to get, 'recall' to recall, 's' to solve, 't' to create tree, 'q' to quit.")
 
 ---
 
@@ -72,4 +72,4 @@ then we got tree.py to make darwinistic trees, can combine anything: components,
 then we have grounding in grounding.csv
 WHEN WE SUM THIS WE GET : A DARWINISTIC AUTOCATALYSIS MACHINE
 idea: make a video about this??
-
++CREATE_TREE IS EUREKA
