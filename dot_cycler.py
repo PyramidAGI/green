@@ -21,7 +21,7 @@ WHITE = (255, 255, 255)
 RED_TEXT = (220, 80, 80)
 
 font = pygame.font.SysFont(None, 30)
-small_font = pygame.font.SysFont("couriernew", 16)
+small_font = pygame.font.SysFont("couriernew", 12)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -124,12 +124,15 @@ while True:
             if buttons[0].hit(event.pos) and orchestrator_mode:
                 orchestrator_mode = False
                 buttons[1].active = False
+                csv_lines, csv_error = [], None
             elif buttons[0].hit(event.pos) and factor_mode:
                 factor_mode = False
                 buttons[1].active = False
+                csv_lines, csv_error = [], None
             elif buttons[0].hit(event.pos) and triangle_mode:
                 triangle_mode = False
                 buttons[1].active = False
+                csv_lines, csv_error = [], None
             elif buttons[0].hit(event.pos):
                 current = (current + 1) % 9
             elif orchestrator_mode:
