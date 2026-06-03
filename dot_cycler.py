@@ -59,12 +59,15 @@ grid_oy = (HEIGHT - SPACING * 2) // 2
 grid_cx = grid_ox + SPACING
 dots = [(grid_ox + c * SPACING, grid_oy + r * SPACING) for r in range(3) for c in range(3)]
 
+ORCHESTRATOR_DOT = 0
 CAUSAL_DOT = 1
 TRIANGLE_DOT = 2
 
 dot_labels = {0: "orchestrator", 1: "causal diagram", 2: "twin triangle", 3: "bus", 4: "log"}
+triangle_node_labels = {6: "sensor", 8: "actuator"}
 
 current = 0
+orchestrator_mode = False
 factor_mode = False
 current_factor = 1  # 1-9
 triangle_mode = False
@@ -77,7 +80,10 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if buttons[0].hit(event.pos) and factor_mode:
+            if buttons[0].hit(event.pos) and orchestrator_mode:
+                orchestrator_mode = False
+                buttons[1].active = False
+            elif buttons[0].hit(event.pos) and factor_mode:
                 factor_mode = False
                 buttons[1].active = False
             elif buttons[0].hit(event.pos) and triangle_mode:
@@ -85,6 +91,11 @@ while True:
                 buttons[1].active = False
             elif buttons[0].hit(event.pos):
                 current = (current + 1) % 9
+            elif orchestrator_mode:
+                if buttons[1].hit(event.pos):
+                    current = (current + 1) % 9
+                elif buttons[2].hit(event.pos):
+                    current = (current - 1) % 9
             elif factor_mode:
                 if buttons[1].hit(event.pos):
                     current = (current + 1) % 9
@@ -98,7 +109,11 @@ while True:
                 elif buttons[2].hit(event.pos):
                     current = (current - 1) % 9
             else:
-                if buttons[1].hit(event.pos) and current == CAUSAL_DOT:
+                if buttons[1].hit(event.pos) and current == ORCHESTRATOR_DOT:
+                    orchestrator_mode = True
+                    current = 0
+                    buttons[1].active = True
+                elif buttons[1].hit(event.pos) and current == CAUSAL_DOT:
                     factor_mode = True
                     current = 0
                     current_factor = 1
@@ -123,8 +138,12 @@ while True:
         if lit:
             pygame.draw.circle(screen, (150, 255, 150), (x, y), r + 4, 2)
 
-    if not factor_mode and not triangle_mode and current in dot_labels:
+    if not orchestrator_mode and not factor_mode and not triangle_mode and current in dot_labels:
         label = font.render(dot_labels[current], True, GREEN_LIT)
+        screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
+
+    if orchestrator_mode:
+        label = font.render(dot_labels[ORCHESTRATOR_DOT], True, GREEN_LIT)
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
 
     if factor_mode:
@@ -137,6 +156,10 @@ while True:
     if triangle_mode:
         label = font.render(dot_labels[TRIANGLE_DOT], True, GREEN_LIT)
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
+        if current in triangle_node_labels:
+            node_label = font.render(triangle_node_labels[current], True, BTN_TEXT)
+            grid_bottom = grid_oy + 2 * SPACING
+            screen.blit(node_label, node_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
 
     pygame.display.flip()
     clock.tick(60)
