@@ -81,6 +81,7 @@ triangle_mode = False
 
 csv_lines = []
 csv_error = None
+pinned_word = None
 
 
 def get_bottom_word():
@@ -94,9 +95,10 @@ def get_bottom_word():
 
 
 def load_csv(word):
-    global csv_lines, csv_error
+    global csv_lines, csv_error, pinned_word
     filename = word.replace(" ", "") + ".csv"
     path = os.path.join(SCRIPT_DIR, filename)
+    pinned_word = filename
     try:
         with open(path, newline="", encoding="utf-8") as f:
             rows = list(csv.reader(f))
@@ -131,14 +133,17 @@ while True:
                 continue
 
             if buttons[0].hit(event.pos) and orchestrator_mode:
+                pinned_word = get_bottom_word()
                 orchestrator_mode = False
                 buttons[1].active = False
                 csv_lines, csv_error = [], None
             elif buttons[0].hit(event.pos) and factor_mode:
+                pinned_word = get_bottom_word()
                 factor_mode = False
                 buttons[1].active = False
                 csv_lines, csv_error = [], None
             elif buttons[0].hit(event.pos) and triangle_mode:
+                pinned_word = get_bottom_word()
                 triangle_mode = False
                 buttons[1].active = False
                 csv_lines, csv_error = [], None
@@ -184,6 +189,11 @@ while True:
         pygame.draw.circle(screen, color, (x, y), r)
         if lit:
             pygame.draw.circle(screen, (150, 255, 150), (x, y), r + 4, 2)
+
+    # Pinned word in red, always shown below the current bottom word
+    if pinned_word:
+        pinned_surf = font.render(pinned_word, True, RED_TEXT)
+        screen.blit(pinned_surf, pinned_surf.get_rect(centerx=grid_cx, top=grid_bottom + 54))
 
     # Top label (above grid)
     if not orchestrator_mode and not factor_mode and not triangle_mode and current in dot_labels:
