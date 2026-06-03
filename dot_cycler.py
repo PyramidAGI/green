@@ -29,9 +29,7 @@ class Button:
     def draw(self, surface):
         mx, my = pygame.mouse.get_pos()
         hovered = self.rect.collidepoint(mx, my)
-        if self.active:
-            color = BTN_ACTIVE
-        elif hovered:
+        if hovered:
             color = BTN_HOVER
         else:
             color = BTN_COLOR
@@ -61,13 +59,15 @@ grid_oy = (HEIGHT - SPACING * 2) // 2
 grid_cx = grid_ox + SPACING
 dots = [(grid_ox + c * SPACING, grid_oy + r * SPACING) for r in range(3) for c in range(3)]
 
-CAUSAL_DOT = 1  # index of 'causal diagram' dot
+CAUSAL_DOT = 1
+TRIANGLE_DOT = 2
 
 dot_labels = {0: "orchestrator", 1: "causal diagram", 2: "twin triangle", 3: "bus", 4: "log"}
 
 current = 0
 factor_mode = False
 current_factor = 1  # 1-9
+triangle_mode = False
 
 clock = pygame.time.Clock()
 
@@ -80,6 +80,9 @@ while True:
             if buttons[0].hit(event.pos) and factor_mode:
                 factor_mode = False
                 buttons[1].active = False
+            elif buttons[0].hit(event.pos) and triangle_mode:
+                triangle_mode = False
+                buttons[1].active = False
             elif buttons[0].hit(event.pos):
                 current = (current + 1) % 9
             elif factor_mode:
@@ -89,11 +92,20 @@ while True:
                 elif buttons[2].hit(event.pos):
                     current = (current - 1) % 9
                     current_factor = ((current_factor - 2) % 9) + 1
+            elif triangle_mode:
+                if buttons[1].hit(event.pos):
+                    current = (current + 1) % 9
+                elif buttons[2].hit(event.pos):
+                    current = (current - 1) % 9
             else:
                 if buttons[1].hit(event.pos) and current == CAUSAL_DOT:
                     factor_mode = True
                     current = 0
                     current_factor = 1
+                    buttons[1].active = True
+                elif buttons[1].hit(event.pos) and current == TRIANGLE_DOT:
+                    triangle_mode = True
+                    current = 0
                     buttons[1].active = True
 
     screen.fill(BG)
@@ -111,7 +123,7 @@ while True:
         if lit:
             pygame.draw.circle(screen, (150, 255, 150), (x, y), r + 4, 2)
 
-    if not factor_mode and current in dot_labels:
+    if not factor_mode and not triangle_mode and current in dot_labels:
         label = font.render(dot_labels[current], True, GREEN_LIT)
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
 
@@ -121,6 +133,10 @@ while True:
         factor_label = font.render(f"factor {current_factor}", True, BTN_TEXT)
         grid_bottom = grid_oy + 2 * SPACING
         screen.blit(factor_label, factor_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
+
+    if triangle_mode:
+        label = font.render(dot_labels[TRIANGLE_DOT], True, GREEN_LIT)
+        screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
 
     pygame.display.flip()
     clock.tick(60)
