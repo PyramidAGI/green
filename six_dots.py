@@ -9,7 +9,10 @@ WIDTH, HEIGHT = 1000, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Six Dots")
 
-BG = (30, 30, 30)
+BG_DARK = (30, 30, 30)
+BG_LIGHT = (240, 240, 240)
+BG = BG_DARK
+bg_dark = True
 font = pygame.font.SysFont("couriernew", 14)
 small_font = pygame.font.SysFont("couriernew", 11)
 
@@ -66,7 +69,10 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
+            if event.key == pygame.K_b:
+                bg_dark = not bg_dark
+                BG = BG_DARK if bg_dark else BG_LIGHT
+            elif event.key == pygame.K_RIGHT:
                 active = (active + 1) % n
                 combo_number = 0
                 combo_text = None
@@ -78,6 +84,10 @@ while True:
                 csv_lines, csv_error = [], None
             elif event.key == pygame.K_DOWN:
                 combo_number = (combo_number % 9) + 1
+                combo_text = labels[active].replace(" ", "") + str(combo_number)
+                csv_lines, csv_error = [], None
+            elif event.key == pygame.K_UP:
+                combo_number = ((combo_number - 2) % 9) + 1
                 combo_text = labels[active].replace(" ", "") + str(combo_number)
                 csv_lines, csv_error = [], None
             elif pygame.K_1 <= event.key <= pygame.K_9:
@@ -92,17 +102,21 @@ while True:
 
     screen.fill(BG)
 
+    FG = (30, 30, 30) if not bg_dark else (200, 200, 200)
+    FG_BRIGHT = (0, 0, 0) if not bg_dark else (255, 255, 255)
+    RING = (0, 0, 0) if not bg_dark else (255, 255, 255)
+
     for i, (x, y) in enumerate(dot_positions):
         r = DOT_R + 4 if i == active else DOT_R
         pygame.draw.circle(screen, colors[i], (x, y), r)
         if i == active:
-            pygame.draw.circle(screen, (255, 255, 255), (x, y), r + 4, 2)
-        label_surf = font.render(labels[i], True, (255, 255, 255) if i == active else (200, 200, 200))
+            pygame.draw.circle(screen, RING, (x, y), r + 4, 2)
+        label_surf = font.render(labels[i], True, FG_BRIGHT if i == active else FG)
         screen.blit(label_surf, label_surf.get_rect(centerx=x, top=y + DOT_R + 14))
 
     content_top = DOT_Y + DOT_R + 44
     if combo_text:
-        combo_surf = font.render(combo_text, True, (200, 200, 200))
+        combo_surf = font.render(combo_text, True, FG)
         screen.blit(combo_surf, combo_surf.get_rect(centerx=WIDTH // 2, top=content_top))
         content_top += 28
 
@@ -114,7 +128,7 @@ while True:
         for line in csv_lines:
             if y_pos > HEIGHT - 16:
                 break
-            screen.blit(small_font.render(line, True, (180, 180, 180)), (20, y_pos))
+            screen.blit(small_font.render(line, True, FG), (20, y_pos))
             y_pos += 16
 
     pygame.display.flip()
