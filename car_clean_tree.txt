@@ -1,0 +1,29 @@
+                   car cleaning fails
+                  /         |           \
+           dirt not       equipment     surface
+           removed          fails       damaged
+          /   |   \        /   |   \    /      \
+       wrong  low  hard  pump  hose cloth scratch water
+      product pres  dirt broke leak worn   left   spots
+              sure    |                   /   \    |
+                    dried             dirty  grit mineral
+                     mud              cloth       deposit
+                     sap
+
+node 0:  car cleaning fails
+node 1:  dirt not removed
+node 2:  equipment fails
+node 3:  surface damaged
+node 4:  wrong product used
+node 5:  pressure too low
+node 6:  dirt too stubborn
+node 7:  pump is broken
+node 8:  hose leaks
+node 9:  cloth is worn
+node 10: scratches left on surface
+node 11: water spots form
+node 12: dirt dried on paint
+node 13: tree sap stuck to surface
+node 14: sponge is dirty
+node 15: grit trapped in cloth
+node 16: mineral deposit from water
