@@ -131,5 +131,8 @@ while True:
             screen.blit(small_font.render(line, True, FG), (20, y_pos))
             y_pos += 16
 
+    tagline = small_font.render("make it so: turn problem tree into causal diagrams and double triangles", True, FG)
+    screen.blit(tagline, tagline.get_rect(centerx=WIDTH // 2, bottom=HEIGHT - 10))
+
     pygame.display.flip()
     clock.tick(60)
