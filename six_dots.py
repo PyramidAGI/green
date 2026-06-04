@@ -23,7 +23,7 @@ SIXD_DIR = os.path.join(SCRIPT_DIR, "sixd")
 
 labels = ["orchestrator", "causal diagram", "double triangle", "bus", "log", "do"]
 colors = [
-    (100, 160, 240),
+    (0, 0, 255),
     (80, 210, 120),
     (230, 90, 90),
     (230, 190, 60),
