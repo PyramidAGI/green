@@ -122,6 +122,41 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.KEYDOWN:
+            any_mode = orchestrator_mode or factor_mode or triangle_mode or log_mode
+            if event.key == pygame.K_UP and any_mode:
+                for mode, attr in [("orchestrator_mode", orchestrator_mode),
+                                   ("factor_mode", factor_mode),
+                                   ("triangle_mode", triangle_mode),
+                                   ("log_mode", log_mode)]:
+                    if attr:
+                        pinned_word = get_bottom_word()
+                        if mode == "orchestrator_mode": orchestrator_mode = False
+                        elif mode == "factor_mode": factor_mode = False
+                        elif mode == "triangle_mode": triangle_mode = False
+                        elif mode == "log_mode": log_mode = False
+                        buttons[1].active = False
+                        csv_lines[:] = []
+                        csv_error = None
+                        break
+            elif event.key == pygame.K_DOWN and not any_mode:
+                if current == ORCHESTRATOR_DOT:
+                    orchestrator_mode = True; current = 0; current_orchestrator = 1; buttons[1].active = True
+                elif current == CAUSAL_DOT:
+                    factor_mode = True; current = 0; current_factor = 1; buttons[1].active = True
+                elif current == TRIANGLE_DOT:
+                    triangle_mode = True; current = 0; buttons[1].active = True
+                elif current == LOG_DOT:
+                    log_mode = True; current = 0; buttons[1].active = True
+            elif event.key == pygame.K_RIGHT:
+                current = (current + 1) % 9
+                if orchestrator_mode: current_orchestrator = (current_orchestrator % 9) + 1
+                elif factor_mode: current_factor = (current_factor % 9) + 1
+            elif event.key == pygame.K_LEFT:
+                current = (current - 1) % 9
+                if orchestrator_mode: current_orchestrator = ((current_orchestrator - 2) % 9) + 1
+                elif factor_mode: current_factor = ((current_factor - 2) % 9) + 1
+
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if pinned_word and clear_btn.hit(event.pos):
                 pinned_word = None
