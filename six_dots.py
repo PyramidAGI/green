@@ -40,6 +40,7 @@ KP_MAP = {
 
 active = 0
 combo_text = None
+combo_number = 0
 csv_lines = []
 csv_error = None
 
@@ -67,8 +68,18 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
                 active = (active + 1) % n
+                combo_number = 0
+                combo_text = None
+                csv_lines, csv_error = [], None
             elif event.key == pygame.K_LEFT:
                 active = (active - 1) % n
+                combo_number = 0
+                combo_text = None
+                csv_lines, csv_error = [], None
+            elif event.key == pygame.K_DOWN:
+                combo_number = (combo_number % 9) + 1
+                combo_text = labels[active].replace(" ", "") + str(combo_number)
+                csv_lines, csv_error = [], None
             elif pygame.K_1 <= event.key <= pygame.K_9:
                 combo_text = labels[active].replace(" ", "") + chr(event.key)
                 csv_lines, csv_error = [], None
