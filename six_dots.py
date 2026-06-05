@@ -47,6 +47,16 @@ combo_number = 0
 csv_lines = []
 csv_error = None
 
+dot_explain = {}
+try:
+    with open(os.path.join(SIXD_DIR, "dotexplain.csv"), encoding="utf-8-sig") as _f:
+        for line in _f:
+            parts = line.strip().split(";", 1)
+            if len(parts) == 2:
+                dot_explain[int(parts[0]) - 1] = parts[1].strip()
+except FileNotFoundError:
+    pass
+
 
 def load_csv(name):
     global csv_lines, csv_error
@@ -130,6 +140,10 @@ while True:
                 break
             screen.blit(small_font.render(line, True, FG), (20, y_pos))
             y_pos += 16
+
+    if active in dot_explain:
+        explain_surf = small_font.render(dot_explain[active], True, FG)
+        screen.blit(explain_surf, explain_surf.get_rect(centerx=WIDTH // 2, bottom=HEIGHT - 28))
 
     tagline = small_font.render("make it so: turn problem tree into causal diagrams and double triangles", True, FG)
     screen.blit(tagline, tagline.get_rect(centerx=WIDTH // 2, bottom=HEIGHT - 10))
