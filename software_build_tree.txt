@@ -1,0 +1,34 @@
+              software build fails
+             /           |            \
+         GUI           database       integration
+         fails           fails          fails
+        / | \           / | \          /  |   \
+    layout event render conn query   data show state save
+    broken unhand slow  fails fails corrupt miss match crash
+      |       |          |     |           |          |
+    size    binding    creds  bad        binding  constraint
+    overlap missing    down   SQL        missing  violated
+                       server index
+
+node 0:  software build fails
+node 1:  GUI fails
+node 2:  database fails
+node 3:  integration fails
+node 4:  layout broken
+node 5:  events unhandled
+node 6:  renders too slow
+node 7:  database connection fails
+node 8:  queries fail
+node 9:  data is corrupt
+node 10: data not displayed
+node 11: state mismatch
+node 12: save crashes
+node 13: wrong widget sizing
+node 14: widget overlap
+node 15: event binding missing
+node 16: wrong credentials
+node 17: database server down
+node 18: bad SQL syntax
+node 19: missing index
+node 20: data binding missing
+node 21: constraint violated on save

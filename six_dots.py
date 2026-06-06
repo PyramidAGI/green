@@ -1,4 +1,5 @@
 import pygame
+import pygame_gui
 import sys
 import os
 import csv
@@ -12,10 +13,7 @@ WIDTH, HEIGHT = 1000, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Six Dots")
 
-BG_DARK = (30, 30, 30)
-BG_LIGHT = (240, 240, 240)
-BG = BG_LIGHT
-bg_dark = False
+BG = (240, 240, 240)
 font = pygame.font.SysFont("couriernew", 14)
 small_font = pygame.font.SysFont("couriernew", 11)
 
@@ -44,7 +42,44 @@ KP_MAP = {
     pygame.K_KP7: '7', pygame.K_KP8: '8', pygame.K_KP9: '9',
 }
 
+manager = pygame_gui.UIManager((WIDTH, HEIGHT))
+
+form_panel = None
+form_entry = None
+form_result = None
+clear_entry_next_frame = False
+
+
+def open_form():
+    global form_panel, form_entry
+    pw, ph = 660, 140
+    form_panel = pygame_gui.elements.UIPanel(
+        relative_rect=pygame.Rect((WIDTH - pw) // 2, (HEIGHT - ph) // 2, pw, ph),
+        manager=manager)
+    pygame_gui.elements.UILabel(
+        relative_rect=pygame.Rect(10, 8, pw - 20, 36),
+        text="Give the problem tree file you want converted to causal diagram and double triangle",
+        manager=manager, container=form_panel)
+    form_entry = pygame_gui.elements.UITextEntryLine(
+        relative_rect=pygame.Rect(10, 52, pw - 110, 40),
+        manager=manager, container=form_panel)
+    pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect(pw - 90, 52, 70, 40),
+        text="OK", manager=manager, container=form_panel)
+    form_entry.focus()
+    form_entry.set_text("")
+
+
+def close_form():
+    global form_panel, form_entry
+    if form_panel:
+        form_panel.kill()
+        form_panel = None
+        form_entry = None
+
+
 active = 0
+show_popup = False
 combo_text = None
 combo_number = 0
 csv_lines = []
@@ -93,10 +128,39 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame_gui.UI_BUTTON_PRESSED and form_panel:
+            form_result = form_entry.get_text().strip()
+            close_form()
+            if form_result:
+                for search_dir in [SCRIPT_DIR, SIXD_DIR]:
+                    for name in [form_result, form_result + ".csv", form_result + ".txt"]:
+                        path = os.path.join(search_dir, name)
+                        if os.path.isfile(path):
+                            with open(path, encoding="utf-8") as _f:
+                                csv_lines = [l.rstrip() for l in _f.readlines()]
+                            csv_error = None
+                            break
+                    else:
+                        continue
+                    break
+                else:
+                    csv_lines = []
+                    csv_error = f"not found: {form_result}"
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
+            if form_panel:
+                close_form()
+            else:
+                open_form()
+                clear_entry_next_frame = True
+            continue  # skip manager.process_events so 'q' keydown doesn't reach text entry
+
+        manager.process_events(event)
+
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_b:
-                bg_dark = not bg_dark
-                BG = BG_DARK if bg_dark else BG_LIGHT
+            if event.key == pygame.K_q:
+                pass
+            elif event.key == pygame.K_ESCAPE:
+                close_form()
             elif event.key == pygame.K_RIGHT:
                 active = (active + 1) % n
                 combo_number = 0
@@ -127,11 +191,15 @@ while True:
                 if combo_text:
                     load_csv(combo_text)
 
+    if clear_entry_next_frame and form_entry:
+        form_entry.set_text("")
+        clear_entry_next_frame = False
+
     screen.fill(BG)
 
-    FG = (30, 30, 30) if not bg_dark else (200, 200, 200)
-    FG_BRIGHT = (0, 0, 0) if not bg_dark else (255, 255, 255)
-    RING = (0, 0, 0) if not bg_dark else (255, 255, 255)
+    FG = (30, 30, 30)
+    FG_BRIGHT = (0, 0, 0)
+    RING = (0, 0, 0)
 
     title = font.render("THIS APP IS FULLY SELF-ORGANIZING", True, FG_BRIGHT)
     screen.blit(title, title.get_rect(centerx=WIDTH // 2, bottom=DOT_Y - 32))
@@ -168,5 +236,8 @@ while True:
     tagline = small_font.render("make it so: turn problem tree into causal diagrams and double triangles", True, FG)
     screen.blit(tagline, tagline.get_rect(centerx=WIDTH // 2, bottom=HEIGHT - 10))
 
+    time_delta = clock.tick(60) / 1000.0
+    manager.update(time_delta)
+    manager.draw_ui(screen)
+
     pygame.display.flip()
-    clock.tick(60)
