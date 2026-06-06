@@ -87,6 +87,18 @@ csv_lines = []
 csv_error = None
 pinned_word = None
 
+# Load dot explanations from sixd/dotexplain.csv (1-based index -> sentence)
+dot_explain = {}
+_explain_path = os.path.join(SCRIPT_DIR, "sixd", "dotexplain.csv")
+try:
+    with open(_explain_path, encoding="utf-8-sig") as _f:
+        for line in _f:
+            parts = line.strip().split(";", 1)
+            if len(parts) == 2:
+                dot_explain[int(parts[0]) - 1] = parts[1].strip()
+except FileNotFoundError:
+    pass
+
 
 def get_bottom_word():
     if orchestrator_mode:
@@ -260,7 +272,12 @@ while True:
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
         if current in log_node_labels:
             log_label = font.render(log_node_labels[current], True, BTN_TEXT)
-            screen.blit(log_label, log_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
+            screen.blit(log_label, log_label.get_rect(centerx=grid_cx, top=grid_bottom + 44))
+
+    # Dot explanation from dotexplain.csv
+    if current in dot_explain:
+        explain_surf = small_font.render(dot_explain[current], True, BTN_TEXT)
+        screen.blit(explain_surf, explain_surf.get_rect(centerx=grid_cx, top=grid_bottom + 24))
 
     # Pinned word in red, always shown below the current bottom word
     if pinned_word:
@@ -276,20 +293,20 @@ while True:
         label = font.render(dot_labels[ORCHESTRATOR_DOT], True, GREEN_LIT)
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
         orch_label = font.render(f"orchestrator {current_orchestrator}", True, BTN_TEXT)
-        screen.blit(orch_label, orch_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
+        screen.blit(orch_label, orch_label.get_rect(centerx=grid_cx, top=grid_bottom + 44))
 
     if factor_mode:
         label = font.render(dot_labels[CAUSAL_DOT], True, GREEN_LIT)
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
         factor_label = font.render(f"factor {current_factor}", True, BTN_TEXT)
-        screen.blit(factor_label, factor_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
+        screen.blit(factor_label, factor_label.get_rect(centerx=grid_cx, top=grid_bottom + 44))
 
     if triangle_mode:
         label = font.render(dot_labels[TRIANGLE_DOT], True, GREEN_LIT)
         screen.blit(label, label.get_rect(centerx=grid_cx, bottom=grid_oy - 36))
         node_text = triangle_node_labels[current] if current in triangle_node_labels else f"node {triangle_node_numbers[current]}"
         node_label = font.render(node_text, True, BTN_TEXT)
-        screen.blit(node_label, node_label.get_rect(centerx=grid_cx, top=grid_bottom + 24))
+        screen.blit(node_label, node_label.get_rect(centerx=grid_cx, top=grid_bottom + 44))
 
     # CSV content in left panel below buttons
     if csv_error:

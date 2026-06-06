@@ -1,0 +1,6 @@
+1;this  is the orchestrator. it holds which causal diagram connects to which double triangle.
+2;this is the causal diagram. it holds factors and criteria.
+3;this is the double triangle. it holds an actuator and a sensor and crtl/nav/plan
+4;this is the bus. at the moment there is only one bus.
+5;this is the log. at the moment there is only one log.
+6;this is the do. it holds 9 functions. these can be mapped to the template_program.py
