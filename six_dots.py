@@ -2,8 +2,11 @@ import pygame
 import sys
 import os
 import csv
+import array
+import math
 
 pygame.init()
+pygame.mixer.init(frequency=44100, size=-16, channels=1, buffer=512)
 
 WIDTH, HEIGHT = 1000, 400
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -11,8 +14,8 @@ pygame.display.set_caption("Six Dots")
 
 BG_DARK = (30, 30, 30)
 BG_LIGHT = (240, 240, 240)
-BG = BG_DARK
-bg_dark = True
+BG = BG_LIGHT
+bg_dark = False
 font = pygame.font.SysFont("couriernew", 14)
 small_font = pygame.font.SysFont("couriernew", 11)
 
@@ -71,6 +74,18 @@ def load_csv(name):
         csv_error = f"not found: {path}"
 
 
+def make_beep():
+    rate = 44100
+    n = int(rate * 0.12)
+    buf = array.array('h', [0] * n)
+    for i in range(n):
+        t = i / rate
+        decay = math.exp(-20 * t)
+        buf[i] = int(32767 * decay * math.sin(2 * math.pi * 300 * t))
+    return pygame.mixer.Sound(buffer=buf)
+
+beep_sound = make_beep()
+
 clock = pygame.time.Clock()
 
 while True:
@@ -87,11 +102,13 @@ while True:
                 combo_number = 0
                 combo_text = None
                 csv_lines, csv_error = [], None
+                beep_sound.play()
             elif event.key == pygame.K_LEFT:
                 active = (active - 1) % n
                 combo_number = 0
                 combo_text = None
                 csv_lines, csv_error = [], None
+                beep_sound.play()
             elif event.key == pygame.K_DOWN:
                 combo_number = (combo_number % 9) + 1
                 combo_text = labels[active].replace(" ", "") + str(combo_number)
@@ -115,6 +132,9 @@ while True:
     FG = (30, 30, 30) if not bg_dark else (200, 200, 200)
     FG_BRIGHT = (0, 0, 0) if not bg_dark else (255, 255, 255)
     RING = (0, 0, 0) if not bg_dark else (255, 255, 255)
+
+    title = font.render("THIS APP IS FULLY SELF-ORGANIZING", True, FG_BRIGHT)
+    screen.blit(title, title.get_rect(centerx=WIDTH // 2, bottom=DOT_Y - 32))
 
     for i, (x, y) in enumerate(dot_positions):
         r = DOT_R + 4 if i == active else DOT_R

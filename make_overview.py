@@ -14,7 +14,8 @@ else:
         for filename in sorted(matches):
             path = os.path.join(SIXD_DIR, filename)
             with open(path, encoding="utf-8") as f:
-                content = f.read().strip()
-            if content:
-                out.write(content + "\n")
+                for line in f:
+                    cols = [c for c in line.replace(";", ",").split(",") if c.strip()]
+                    if len(cols) > 3:
+                        out.write(line.rstrip() + "\n")
     print(f"Written {len(matches)} file(s) to overview.txt: {', '.join(sorted(matches))}")
