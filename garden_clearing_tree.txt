@@ -1,0 +1,31 @@
+           garden clearing fails
+          /          |           \
+      collection   disposal    equipment
+        fails        fails       fails
+       / | \        / | \       / | \
+    vol terrain effort bag compost access rake bag wheel
+    high  hard   high  full  full  blocked broke torn barrow
+    / \   / \      |                         |        |
+  long clump wet uneven fatigue           handle    flat
+  grass              mud                 snapped    tyre
+
+node 0:  garden clearing fails
+node 1:  collection fails
+node 2:  disposal fails
+node 3:  equipment fails
+node 4:  volume too high
+node 5:  terrain too difficult
+node 6:  effort too high
+node 7:  bag capacity exceeded
+node 8:  compost bin full
+node 9:  collection point unreachable
+node 10: rake is broken
+node 11: bag is torn
+node 12: wheelbarrow unusable
+node 13: grass grown too long
+node 14: cuttings clumped together
+node 15: lawn too wet
+node 16: uneven muddy ground
+node 17: worker fatigue
+node 18: rake handle snapped
+node 19: wheelbarrow tyre flat
