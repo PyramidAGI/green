@@ -18,7 +18,7 @@ font = pygame.font.SysFont("couriernew", 15)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Load glasses image
-img_path = os.path.join(os.path.expanduser("~"), "Downloads", "glasses.png")
+img_path = os.path.join(SCRIPT_DIR, "glasses.png")
 glasses_img = pygame.image.load(img_path).convert_alpha()
 orig_w, orig_h = glasses_img.get_size()
 
