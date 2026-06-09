@@ -9,6 +9,7 @@ Commands:
 
 from pathlib import Path
 
+PROMA_DIR = Path(__file__).parent
 SEP = ";" * 8
 FIELDS = 9
 

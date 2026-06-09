@@ -1,0 +1,39 @@
+topic,housing
+topic,industry
+topic,services
+topic,government
+topic,arts
+topic,agriculture
+topic,transport
+topic,hospitality
+topic,medical
+guardrail,upper
+guardrail,lower
+transform,effort -> location
+transform,effort -> price
+transform,force -> orientation
+transform,force -> speed
+transform,productivity -> speed
+transform,effort -> productivity
+transform,effort -> health_metrics
+transform,effort -> climate_metrics
+transform,effort -> economic_indicators
+transform,energy -> accuracy
+transform,speed -> mass
+transform,effort -> orderedness (entropy)
+transform,effort -> socialenergy
+transform,repair = effort -> I,T,P
+transform,lux -> power
+transform,volt -> calorie
+transform,aspect:controller
+transform,aspect:tap
+transform,aspect:channel
+transform,aspect:flow
+transform,aspect:substance
+transform,aspect:transformer
+transform,aspect:tool
+transform,aspect:sensor
+transform,aspect:actuator
+causaldiagram,standard
+causaldiagram,advanced
+
