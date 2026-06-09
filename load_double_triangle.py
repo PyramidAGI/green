@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""Build a CSV of transforms in log.csv record format.
+
+Commands:
+  left -> right   add a transform
+  l               save to file
+  q               quit
+"""
+
+from pathlib import Path
+
+SEP = ";" * 8
+FIELDS = 9
+OUT = Path(__file__).parent / "sixd" / "doubletriangle1.csv"
+
+
+def row(*values: str) -> str:
+    fields = list(values) + [""] * (FIELDS - len(values))
+    return ";".join(fields[:FIELDS])
+
+
+def save(transforms: list[tuple[str, str]]) -> None:
+    lines = [SEP]
+    for left, right in transforms:
+        lines.append(row("", "c", "transform", left, right))
+    lines.append(row("", "q", "sensor"))
+    lines.append(row("", "c", "actuator"))
+    lines.append(SEP)
+    OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Saved {len(transforms)} transform(s) to {OUT}")
+
+
+def main() -> None:
+    transforms: list[tuple[str, str]] = []
+    print("Transform builder  |  left -> right  |  l=save  q=quit")
+
+    while True:
+        try:
+            line = input("> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            break
+
+        if not line:
+            continue
+        if line.casefold() == "q":
+            break
+        if line.casefold() == "l":
+            if transforms:
+                save(transforms)
+            else:
+                print("No transforms to save.")
+            continue
+
+        if "->" in line:
+            left, _, right = line.partition("->")
+            left, right = left.strip(), right.strip()
+            if left and right:
+                transforms.append((left, right))
+                print(f"  [{len(transforms)}] {left} -> {right}")
+                continue
+
+        print("  Use format:  left -> right")
+
+
+if __name__ == "__main__":
+    main()
