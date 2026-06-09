@@ -37,7 +37,7 @@ lens_cy  = img_y + int(img_h * 0.72)
 links = [
     {"label": "six_dots.py",      "file": os.path.join(SCRIPT_DIR, "six_dots.py"),       "cx": left_cx,  "cy": lens_cy - 24},
     {"label": "yellow.py",        "file": os.path.join(SCRIPT_DIR, "yellow.py"),          "cx": left_cx,  "cy": lens_cy + 24},
-    {"label": "prompt maker.exe", "file": os.path.join(SCRIPT_DIR, "prompt maker.exe"),  "cx": right_cx, "cy": lens_cy},
+    {"label": "prompt_maker_cli.py", "file": os.path.join(SCRIPT_DIR, "prompt_maker_cli.py"), "cx": right_cx, "cy": lens_cy},
 ]
 
 for link in links:
@@ -58,10 +58,7 @@ while True:
             for link in links:
                 if link["rect"].collidepoint(event.pos):
                     try:
-                        if link["file"].endswith(".py"):
-                            subprocess.Popen([sys.executable, link["file"]])
-                        else:
-                            os.startfile(link["file"])
+                        subprocess.Popen([sys.executable, link["file"]])
                     except Exception:
                         pass
 
