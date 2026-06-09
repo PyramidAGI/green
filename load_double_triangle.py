@@ -55,6 +55,11 @@ def main() -> None:
                 print("No transforms to save.")
             continue
 
+        if "->" not in line:
+            parts = line.split()
+            if len(parts) == 2:
+                line = f"{parts[0]} -> {parts[1]}"
+
         if "->" in line:
             left, _, right = line.partition("->")
             left, right = left.strip(), right.strip()
