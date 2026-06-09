@@ -8,10 +8,21 @@ Commands:
 """
 
 from pathlib import Path
+from prompt_maker_cli import PromptMakerConfig
 
 PROMA_DIR = Path(__file__).parent
 SEP = ";" * 8
 FIELDS = 9
+
+
+def load_configured_transforms() -> list[tuple[str, str]]:
+    config = PromptMakerConfig.load(PROMA_DIR / "PromptMakerConfig.txt")
+    result = []
+    for t in config.transforms:
+        if "->" in t:
+            left, _, right = t.partition("->")
+            result.append((left.strip(), right.strip()))
+    return result
 
 
 
@@ -40,8 +51,13 @@ def save(transforms: list[tuple[str, str]]) -> None:
 
 
 def main() -> None:
+    configured = load_configured_transforms()
     transforms: list[tuple[str, str]] = []
-    print("Transform builder  |  left -> right  |  l=save  q=quit")
+
+    print("Configured transforms:")
+    for i, (left, right) in enumerate(configured, 1):
+        print(f"  {i:>2}. {left} -> {right}")
+    print("\nType a number, left -> right, or: l=save  q=quit")
 
     while True:
         try:
@@ -61,6 +77,16 @@ def main() -> None:
                 print("No transforms to save.")
             continue
 
+        if line.isdigit():
+            index = int(line) - 1
+            if 0 <= index < len(configured):
+                left, right = configured[index]
+                transforms.append((left, right))
+                print(f"  [{len(transforms)}] {left} -> {right}")
+            else:
+                print(f"  Number out of range (1-{len(configured)}).")
+            continue
+
         if "->" not in line:
             parts = line.split()
             if len(parts) == 2:
@@ -74,7 +100,7 @@ def main() -> None:
                 print(f"  [{len(transforms)}] {left} -> {right}")
                 continue
 
-        print("  Use format:  left -> right")
+        print("  Use format:  left -> right  or a number from the list")
 
 
 if __name__ == "__main__":
