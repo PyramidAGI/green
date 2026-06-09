@@ -10,18 +10,33 @@ The glasses image is displayed as the background. Three clickable file links are
 
 - **six_dots.py** — left lens (top)
 - **yellow.py** — left lens (bottom)
-- **prompt maker.exe** — right lens
+- **prompt_maker_cli.py** — right lens
 
-Clicking a `.py` link launches it with Python. Clicking the `.exe` opens it with the system default. Links highlight in red on hover.
+Clicking a link launches it with Python. Links highlight in red on hover.
 
 ### Requirements
 
 - Python 3
 - pygame (`pip install pygame`)
-- `glasses.png` in `~/Downloads/`
 
 ### Run
 
 ```
 python glasses.py
+```
+
+## load_double_triangle.py
+
+A CLI tool for building a double triangle CSV file (`sixd/doubletriangle1.csv`) in the log.csv record format.
+
+Enter transforms one by one. Type `l` to save, `q` to quit.
+
+Each transform is written as a row with `c` in e0, `transform` in e1, the left side in e2, and the right side in e3. Five fixed rows are always appended: `sensor`, `actuator`, `control`, `plan`, and `nav`.
+
+Input shorthand: `lux power` is treated as `lux -> power`.
+
+### Run
+
+```
+python load_double_triangle.py
 ```
