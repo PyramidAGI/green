@@ -11,7 +11,7 @@ from pathlib import Path
 
 SEP = ";" * 8
 FIELDS = 9
-OUT = Path(__file__).parent / "sixd" / "doubletriangle1.csv"
+
 
 
 def row(*values: str) -> str:
@@ -20,6 +20,11 @@ def row(*values: str) -> str:
 
 
 def save(transforms: list[tuple[str, str]]) -> None:
+    raw = input("Give a number 1-9 to which double triangle you want to write: ").strip()
+    if raw not in {str(n) for n in range(1, 10)}:
+        print("Invalid number, must be 1-9.")
+        return
+    out = Path(__file__).parent / "sixd" / f"doubletriangle{raw}.csv"
     lines = [SEP]
     for left, right in transforms:
         lines.append(row("", "c", "transform", left, right))
@@ -29,8 +34,8 @@ def save(transforms: list[tuple[str, str]]) -> None:
     lines.append(row("", "c", "plan"))
     lines.append(row("", "c", "nav"))
     lines.append(SEP)
-    OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"Saved {len(transforms)} transform(s) to {OUT}")
+    out.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Saved {len(transforms)} transform(s) to {out}")
 
 
 def main() -> None:
