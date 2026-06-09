@@ -3,6 +3,9 @@
 
 Commands:
   left -> right   add a transform
+  N               add configured transform by number
+  k               list quarks
+  k N M           add quark N -> quark M as a transform
   l               save to file
   q               quit
 """
@@ -11,8 +14,21 @@ from pathlib import Path
 from prompt_maker_cli import PromptMakerConfig
 
 PROMA_DIR = Path(__file__).parent
+QUARKS_CSV = PROMA_DIR / "numbered quarks.csv"
 SEP = ";" * 8
 FIELDS = 9
+
+
+def load_quarks() -> dict[int, str]:
+    quarks: dict[int, str] = {}
+    for line in QUARKS_CSV.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        num, _, name = line.partition(";")
+        if num.isdigit():
+            quarks[int(num)] = name.strip()
+    return quarks
 
 
 def load_configured_transforms() -> list[tuple[str, str]]:
@@ -52,12 +68,13 @@ def save(transforms: list[tuple[str, str]]) -> None:
 
 def main() -> None:
     configured = load_configured_transforms()
+    quarks = load_quarks()
     transforms: list[tuple[str, str]] = []
 
     print("Configured transforms:")
     for i, (left, right) in enumerate(configured, 1):
         print(f"  {i:>2}. {left} -> {right}")
-    print("\nType a number, left -> right, or: l=save  q=quit")
+    print("\nType a number, left -> right, or: k=quarks  k N M=quark transform  l=save  q=quit")
 
     while True:
         try:
@@ -75,6 +92,25 @@ def main() -> None:
                 save(transforms)
             else:
                 print("No transforms to save.")
+            continue
+
+        if line.lower().startswith("k"):
+            rest = line[1:].strip()
+            if not rest:
+                for n, name in sorted(quarks.items()):
+                    print(f"  {n:>2}. {name}")
+            else:
+                parts = rest.split()
+                if len(parts) == 2 and all(p.isdigit() for p in parts):
+                    ln, rn = int(parts[0]), int(parts[1])
+                    if ln in quarks and rn in quarks:
+                        left, right = quarks[ln], quarks[rn]
+                        transforms.append((left, right))
+                        print(f"  [{len(transforms)}] {left} -> {right}")
+                    else:
+                        print(f"  Unknown quark number(s). Use k to list quarks.")
+                else:
+                    print("  Use: k  to list quarks, or  k N M  to add quark N -> quark M")
             continue
 
         if line.isdigit():

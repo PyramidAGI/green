@@ -35,6 +35,8 @@ Each transform is written as a row with `c` in e0, `transform` in e1, the left s
 
 Input shorthand: `lux power` is treated as `lux -> power`.
 
+Quarks from `numbered quarks.csv` can be referenced by number: `k` lists all quarks, `k N M` adds a transform from quark N to quark M (e.g. `k 1 5` adds `container -> radiation`).
+
 ### Run
 
 ```
