@@ -1,5 +1,18 @@
 # Green
 
+## Getting started with causal diagrams and double triangles
+
+1. Start with a problem you want solved, written as a short problem tree: the main complaint at the top, its causes branching below.
+2. Open six_dots (`python six_dots.py`), press `q`, and type the name of your problem tree file.
+3. The tool's goal is to turn that tree into two things: a causal diagram (the *why*) and one or more double triangles (the *do*).
+4. The causal diagram holds factors and criteria: a factor is a possible cause from your tree, and a criterion is a measurable threshold that tells you when that factor is really the problem.
+5. Write your criteria so they can be checked — "more than 4 items waiting" works, "things feel slow" does not.
+6. A double triangle is a small action loop: a sensor that measures, an actuator that acts, and control/plan/nav rows that run the loop.
+7. Build one with `python load_double_triangle.py`: type transforms like `lux -> power`, or press `k` to pick quarks by number, then `l` to save it as `doubletriangle1` through `9`.
+8. Each transform is one wire: "when the left side changes, drive the right side" — the sensor reads the left side, the actuator pushes the right side.
+9. When a criterion in the causal diagram trips, it points at one factor, and that factor tells you which transform in the double triangle should fire.
+10. Browse everything in six_dots with the arrow keys and digits 1–9, press Enter to view a file — and remember the sensor can be a light meter or a survey, and the actuator a motor or a person: the same loop works for machines and organizations alike.
+
 ## six_dots.py
 
 A navigation/inspection dashboard for a self-organizing problem-solving system. The goal: turn a problem tree into causal diagrams and double triangles.

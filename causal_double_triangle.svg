@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="610" viewBox="0 0 760 610" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbfbf8"/>
+      <stop offset="1" stop-color="#eef1ec"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6fdfa4"/>
+      <stop offset="1" stop-color="#3cb371"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f08a7a"/>
+      <stop offset="1" stop-color="#d6554e"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#2a3a2f" flood-opacity="0.25"/>
+    </filter>
+    <filter id="softshadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#2a3a2f" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- background -->
+  <rect width="760" height="610" fill="url(#bg)"/>
+
+  <!-- title -->
+  <text x="380" y="44" text-anchor="middle" font-size="22" font-weight="600" fill="#2f3e33" letter-spacing="1">ONE CAUSAL DIAGRAM, TWO DOUBLE TRIANGLES</text>
+  <text x="380" y="68" text-anchor="middle" font-size="13" fill="#6b776e" font-style="italic">as above, so below</text>
+
+  <!-- connectors -->
+  <path d="M 340 175 C 300 280, 240 340, 205 415" fill="none" stroke="#7a8a7e" stroke-width="2.5" stroke-dasharray="7 6" stroke-linecap="round"/>
+  <path d="M 420 175 C 460 230, 500 260, 525 310" fill="none" stroke="#7a8a7e" stroke-width="2.5" stroke-dasharray="7 6" stroke-linecap="round"/>
+
+  <!-- causal diagram: parallelogram -->
+  <g filter="url(#shadow)">
+    <polygon points="310,105 510,105 460,175 260,175" fill="url(#green)" stroke="#22774a" stroke-width="2.5" stroke-linejoin="round"/>
+  </g>
+  <text x="385" y="135" text-anchor="middle" font-size="17" font-weight="600" fill="#103d25">Causal Diagram</text>
+  <text x="385" y="156" text-anchor="middle" font-size="12" fill="#1d5435">factors &amp; criteria</text>
+
+  <!-- left double triangle (larger, lower) -->
+  <g filter="url(#softshadow)">
+    <polygon points="205,415 130,520 280,520" fill="url(#red)" stroke="#9c3530" stroke-width="2.5" stroke-linejoin="round"/>
+    <polygon points="205,415 168,467 242,467" fill="#ffffff" fill-opacity="0.28" stroke="none"/>
+  </g>
+  <text x="205" y="500" text-anchor="middle" font-size="15" font-weight="600" fill="#fff5f3">Double</text>
+  <text x="205" y="516" text-anchor="middle" font-size="15" font-weight="600" fill="#fff5f3">Triangle</text>
+  <text x="205" y="545" text-anchor="middle" font-size="11.5" fill="#7c5a55">sensor · actuator · ctrl / nav / plan</text>
+
+  <!-- right double triangle (smaller, higher) -->
+  <g filter="url(#softshadow)">
+    <polygon points="525,310 465,395 585,395" fill="url(#red)" stroke="#9c3530" stroke-width="2.5" stroke-linejoin="round"/>
+    <polygon points="525,310 495,352 555,352" fill="#ffffff" fill-opacity="0.28" stroke="none"/>
+  </g>
+  <text x="525" y="377" text-anchor="middle" font-size="14" font-weight="600" fill="#fff5f3">Double</text>
+  <text x="525" y="391" text-anchor="middle" font-size="14" font-weight="600" fill="#fff5f3">Triangle</text>
+  <text x="525" y="418" text-anchor="middle" font-size="11.5" fill="#7c5a55">sensor · actuator · ctrl / nav / plan</text>
+
+  <!-- footer tagline -->
+  <text x="380" y="595" text-anchor="middle" font-size="11" fill="#9aa59d" font-style="italic">make it so: turn problem tree into causal diagrams and double triangles</text>
+</svg>
