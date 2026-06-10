@@ -24,7 +24,7 @@
   <rect width="760" height="610" fill="url(#bg)"/>
 
   <!-- title -->
-  <text x="380" y="44" text-anchor="middle" font-size="22" font-weight="600" fill="#2f3e33" letter-spacing="1">ONE CAUSAL DIAGRAM, TWO DOUBLE TRIANGLES</text>
+  <text x="380" y="44" text-anchor="middle" font-size="22" font-weight="600" fill="#2f3e33" letter-spacing="1">EXAMPLE: ONE CAUSAL DIAGRAM, TWO DOUBLE TRIANGLES</text>
 
   <!-- connectors -->
   <path d="M 340 175 C 300 280, 240 340, 205 415" fill="none" stroke="#7a8a7e" stroke-width="2.5" stroke-dasharray="7 6" stroke-linecap="round"/>
