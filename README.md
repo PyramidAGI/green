@@ -101,3 +101,23 @@ The mapping:
 - **The double triangle then runs the social control loop.** Sensor = a 3-question monthly survey (or just counting who shows up). Actuator = a person: the board member who must act when a criterion trips. Transforms like `conflict -> group` ("when conflict rises, schedule a group session") or `activity -> reward` ("logged hours trigger a thank-you"). Control = the monthly board meeting, plan = the season program, nav = switching between "recruiting mode" and "retention mode".
 
 The point this demonstrates: the same six-dots pipeline — problem tree → causal diagram → double triangle — works when the sensor is a survey instead of a lux meter and the actuator is a chairperson instead of a PWM pin. One generic tool for technical *and* organizational problems.
+
+## A double triangle for a non-technical application
+
+`sixd/doubletriangle6.csv` holds five transforms: `effort -> location`, `tool -> compress`, `transaction -> reward`, `energy -> organization`, `activity -> organization`. Read organizationally, this is **a community repair café** — a monthly event where volunteers fix visitors' broken items.
+
+The five wires:
+
+- **`effort -> location`** — route volunteer effort to where the queue is. If the bicycle station is backed up and the electronics table is idle, effort moves there. Where you put effort *is* a location decision.
+
+- **`tool -> compress`** — the right tool compresses the job. A soldering station turns a 40-minute fiddle into a 5-minute fix. Investing in tools is investing in shorter queues.
+
+- **`transaction -> reward`** — every completed repair (the transaction) triggers a visible reward: the donation jar, a photo of the fixed item on the wall, the visitor's thank-you. No repair goes unrewarded, or volunteers stop coming.
+
+- **`energy -> organization`** — schedule the organizing work (rosters, inventory, cleanup) when team energy is high, right after a successful event — not when everyone is drained.
+
+- **`activity -> organization`** — let recurring activity crystallize into structure. When the same person ends up at the sewing table three events in a row, that becomes a named role. Structure follows activity, not the other way around.
+
+And the fixed skeleton: **sensor** = the sign-in sheet and queue length per station, **actuator** = the day coordinator who moves people and opens stations, **control** = the shift lead walking rounds every half hour, **plan** = the event calendar for the season, **nav** = switching between "intake mode" (morning rush) and "repair mode" (afternoon focus).
+
+Same CSV format that drives a Raspberry Pi greenhouse — but here the control loop runs on coffee and goodwill.
