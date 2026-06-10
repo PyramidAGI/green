@@ -121,3 +121,15 @@ The five wires:
 And the fixed skeleton: **sensor** = the sign-in sheet and queue length per station, **actuator** = the day coordinator who moves people and opens stations, **control** = the shift lead walking rounds every half hour, **plan** = the event calendar for the season, **nav** = switching between "intake mode" (morning rush) and "repair mode" (afternoon focus).
 
 Same CSV format that drives a Raspberry Pi greenhouse — but here the control loop runs on coffee and goodwill.
+
+## Combining a double triangle with a causal diagram
+
+Combining the two helps — and the architecture already expects it: the orchestrator's job (per `sixd/dotexplain.csv`) is holding which causal diagram connects to which double triangle. What the combination adds for the repair café:
+
+**The double triangle alone is a loop that runs blind.** It can see the queue (sensor) and move volunteers (actuator), but it doesn't know *why* something is going wrong. Symptoms are ambiguous: a long queue at the bicycle station could mean too few volunteers there (`effort -> location` should fire), missing tools (`tool -> compress` should fire), or volunteers drifting away because repairs stopped feeling rewarded (`transaction -> reward` is broken). The double triangle has no way to choose between its own wires.
+
+**The causal diagram is exactly the missing piece.** Its factors are the candidate causes ("too few tools", "volunteers feel unrewarded", "intake badly sorted") and its criteria make them checkable ("more than 4 items waiting per fixer", "fewer than 1 thank-you per repair"). When a criterion trips, it points at one factor — and that factor points at one transform in the double triangle. Diagnosis selects the wire; the wire executes the fix.
+
+So the division of labor is clean: **causal diagram = why, double triangle = do.** Combined, the café gets a loop that not only reacts but reacts to the right cause — which is precisely the "problem tree → causal diagram → double triangle" pipeline, just running on one concrete Saturday afternoon.
+
+One caveat: for a small café the formal combination can be overkill in practice — the shift lead's intuition *is* the causal diagram most days. The combination pays off when symptoms recur, when the team changes often (knowledge needs to live in the diagram instead of in one person's head), or when you want the orchestrator to handle it without a human diagnosing at all.
