@@ -87,3 +87,17 @@ A double triangle CSV (e.g. `sixd/doubletriangle1.csv`: lux→power, force→spe
 5. **The orchestrator closes the loop.** Since six_dots knows which causal diagram connects to which double triangle, a problem tree like "plant dries out" → causal diagram → `soil_moisture -> water_pump` transform → the Pi greenhouse waters itself. That's the "make it so" path, ending in actual GPIO pulses.
 
 The punchline: the Pi runs one permanent interpreter, and the double triangle CSVs become the *programs* — swappable behavior files a non-programmer can author by picking quark numbers.
+
+## A causal diagram for a non-technical application
+
+A causal diagram holds factors and criteria (see `sixd/dotexplain.csv`). Example: **a volunteer-retention dashboard for a local club** (sports club, choir, scouting group — any organization that bleeds volunteers).
+
+The mapping:
+
+- **Factors** are the causes people quit, taken straight from a problem tree: "feels unappreciated", "tasks unclear", "meetings too long", "conflict with board", "no say in decisions". The quark list already speaks this language — `group`, `conflict`, `own`, `reward`, `val`, `organization`, `dominate` are organizational quarks, not technical ones.
+
+- **Criteria** are the measurable thresholds that make the soft stuff hard: "fewer than 2 thank-yous per month", "more than 3 hours of meetings per week", "0 decisions influenced this quarter". Each factor row gets a criterion row next to it. That's the entire trick: the causal diagram forces vague complaints into checkable statements.
+
+- **The double triangle then runs the social control loop.** Sensor = a 3-question monthly survey (or just counting who shows up). Actuator = a person: the board member who must act when a criterion trips. Transforms like `conflict -> group` ("when conflict rises, schedule a group session") or `activity -> reward` ("logged hours trigger a thank-you"). Control = the monthly board meeting, plan = the season program, nav = switching between "recruiting mode" and "retention mode".
+
+The point this demonstrates: the same six-dots pipeline — problem tree → causal diagram → double triangle — works when the sensor is a survey instead of a lux meter and the actuator is a chairperson instead of a PWM pin. One generic tool for technical *and* organizational problems.
