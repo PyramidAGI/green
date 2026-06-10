@@ -1,5 +1,7 @@
 # Green
 
+![One causal diagram, two double triangles](causal_double_triangle.svg)
+
 ## Getting started with causal diagrams and double triangles
 
 1. Start with a problem you want solved, written as a short problem tree: the main complaint at the top, its causes branching below.
