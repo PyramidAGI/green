@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Six Dots</title>
+<style>
+  body { background: #f0f0f0; margin: 0; display: flex; justify-content: center; }
+  canvas { background: #f0f0f0; display: block; margin-top: 20px; }
+  #form-panel {
+    position: absolute; width: 660px; height: 140px;
+    background: #e6e6e6; border: 1px solid #888; box-sizing: border-box;
+    padding: 8px 10px; display: none; font: 14px "Courier New", monospace;
+  }
+  #form-panel label { display: block; margin-bottom: 10px; }
+  #form-entry { width: 540px; height: 34px; font: 14px "Courier New", monospace; }
+  #form-ok { width: 70px; height: 40px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<canvas id="screen" width="1000" height="400"></canvas>
+<div id="form-panel">
+  <label>Give the problem tree file you want converted to causal diagram and double triangle</label>
+  <input id="form-entry" type="text">
+  <button id="form-ok">OK</button>
+</div>
+<script>
+const WIDTH = 1000, HEIGHT = 400;
+const canvas = document.getElementById("screen");
+const ctx = canvas.getContext("2d");
+
+const BG = "#f0f0f0";
+const DOT_R = 18, DOT_Y = 80;
+const SIXD_DIR = "sixd/";
+
+const labels = ["orchestrator", "causal diagram", "double triangle", "bus", "log", "do"];
+const colors = ["rgb(0,0,255)", "rgb(80,210,120)", "rgb(230,90,90)",
+                "rgb(230,190,60)", "rgb(180,100,220)", "rgb(60,200,200)"];
+const n = labels.length;
+const spacing = Math.floor(WIDTH / (n + 1));
+const dotPositions = labels.map((_, i) => [spacing * (i + 1), DOT_Y]);
+
+let active = 0;
+let comboText = null;
+let comboNumber = 0;
+let csvLines = [];
+let csvError = null;
+let dotExplain = {};
+
+const formPanel = document.getElementById("form-panel");
+const formEntry = document.getElementById("form-entry");
+const formOk = document.getElementById("form-ok");
+
+function formOpen() { return formPanel.style.display === "block"; }
+
+function openForm() {
+  const rect = canvas.getBoundingClientRect();
+  formPanel.style.left = (rect.left + (WIDTH - 660) / 2) + "px";
+  formPanel.style.top = (rect.top + (HEIGHT - 140) / 2 + window.scrollY) + "px";
+  formPanel.style.display = "block";
+  formEntry.value = "";
+  formEntry.focus();
+}
+
+function closeForm() {
+  formPanel.style.display = "none";
+  canvas.focus();
+}
+
+// Web Audio beep: 300 Hz with exponential decay, like the pygame version
+let audioCtx = null;
+function beep() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const rate = audioCtx.sampleRate;
+  const len = Math.floor(rate * 0.12);
+  const buf = audioCtx.createBuffer(1, len, rate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) {
+    const t = i / rate;
+    data[i] = Math.exp(-20 * t) * Math.sin(2 * Math.PI * 300 * t);
+  }
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  src.connect(audioCtx.destination);
+  src.start();
+}
+
+async function fetchText(path) {
+  try {
+    const resp = await fetch(path);
+    if (!resp.ok) return null;
+    return await resp.text();
+  } catch (e) {
+    return null;
+  }
+}
+
+async function loadDotExplain() {
+  const text = await fetchText(SIXD_DIR + "dotexplain.csv");
+  if (text === null) return;
+  for (const line of text.split(/\r?\n/)) {
+    const idx = line.indexOf(";");
+    if (idx > 0) {
+      const num = parseInt(line.slice(0, idx).trim(), 10);
+      if (!isNaN(num)) dotExplain[num - 1] = line.slice(idx + 1).trim();
+    }
+  }
+}
+
+async function loadCsv(name) {
+  const path = SIXD_DIR + name + ".csv";
+  const text = await fetchText(path);
+  if (text === null) {
+    csvLines = [];
+    csvError = "not found: " + path;
+  } else {
+    csvLines = text.split(/\r?\n/).map(l => l.split(",").join(", "));
+    if (csvLines.length && csvLines[csvLines.length - 1] === "") csvLines.pop();
+    csvError = null;
+  }
+}
+
+// Browsers cannot list directory contents, so instead of substring-matching
+// filenames we try likely candidates containing "tree" in both directories.
+async function loadProblemTree(query) {
+  const q = query.trim();
+  if (!q) return;
+  const names = new Set();
+  for (const base of [q, q.replace(/ /g, "_")]) {
+    for (const ext of ["", ".csv", ".txt"]) {
+      names.add(base + ext);
+      if (!base.toLowerCase().includes("tree")) {
+        names.add(base + "_tree" + ext);
+        names.add("tree_" + base + ext);
+        names.add(base + "tree" + ext);
+      }
+    }
+  }
+  for (const dir of ["", SIXD_DIR]) {
+    for (const name of names) {
+      if (!name.toLowerCase().includes("tree")) continue;
+      const text = await fetchText(dir + name);
+      if (text !== null) {
+        csvLines = text.split(/\r?\n/).map(l => l.replace(/\s+$/, ""));
+        if (csvLines.length && csvLines[csvLines.length - 1] === "") csvLines.pop();
+        csvError = null;
+        return;
+      }
+    }
+  }
+  csvLines = [];
+  csvError = "not found: " + q + " (with 'tree')";
+}
+
+formOk.addEventListener("click", () => {
+  const value = formEntry.value.trim();
+  closeForm();
+  if (value) loadProblemTree(value);
+});
+
+formEntry.addEventListener("keydown", (e) => {
+  e.stopPropagation();
+  if (e.key === "Enter") formOk.click();
+  else if (e.key === "Escape" || e.key === "q") closeForm();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (formOpen()) {
+    if (e.key === "Escape" || e.key === "q") closeForm();
+    return;
+  }
+  if (e.key === "q") {
+    openForm();
+  } else if (e.key === "ArrowRight") {
+    active = (active + 1) % n;
+    comboNumber = 0;
+    comboText = null;
+    csvLines = []; csvError = null;
+    beep();
+  } else if (e.key === "ArrowLeft") {
+    active = (active - 1 + n) % n;
+    comboNumber = 0;
+    comboText = null;
+    csvLines = []; csvError = null;
+    beep();
+  } else if (e.key === "ArrowDown") {
+    comboNumber = (comboNumber % 9) + 1;
+    comboText = labels[active].replace(/ /g, "") + comboNumber;
+    csvLines = []; csvError = null;
+  } else if (e.key === "ArrowUp") {
+    comboNumber = ((comboNumber - 2 + 9) % 9) + 1;
+    comboText = labels[active].replace(/ /g, "") + comboNumber;
+    csvLines = []; csvError = null;
+  } else if (e.key >= "1" && e.key <= "9") {
+    comboText = labels[active].replace(/ /g, "") + e.key;
+    csvLines = []; csvError = null;
+  } else if (e.key === "Enter") {
+    if (comboText) loadCsv(comboText);
+  } else {
+    return;
+  }
+  e.preventDefault();
+});
+
+function draw() {
+  ctx.fillStyle = BG;
+  ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+  const FG = "rgb(30,30,30)";
+  const FG_BRIGHT = "#000";
+
+  ctx.textBaseline = "alphabetic";
+  ctx.font = "14px 'Courier New', monospace";
+  ctx.fillStyle = FG_BRIGHT;
+  ctx.textAlign = "center";
+  ctx.fillText("THIS APP IS FULLY SELF-ORGANIZING", WIDTH / 2, DOT_Y - 32);
+
+  for (let i = 0; i < n; i++) {
+    const [x, y] = dotPositions[i];
+    const r = i === active ? DOT_R + 4 : DOT_R;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+    if (i === active) {
+      ctx.beginPath();
+      ctx.arc(x, y, r + 4, 0, 2 * Math.PI);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#000";
+      ctx.stroke();
+    }
+    ctx.fillStyle = i === active ? FG_BRIGHT : FG;
+    ctx.fillText(labels[i], x, y + DOT_R + 14 + 12);
+  }
+
+  let contentTop = DOT_Y + DOT_R + 44;
+  if (comboText) {
+    ctx.fillStyle = FG;
+    ctx.textAlign = "center";
+    ctx.fillText(comboText, WIDTH / 2, contentTop + 12);
+    contentTop += 28;
+  }
+
+  ctx.font = "11px 'Courier New', monospace";
+  ctx.textAlign = "left";
+  if (csvError) {
+    ctx.fillStyle = "rgb(220,80,80)";
+    ctx.fillText(csvError, 20, contentTop + 10);
+  } else {
+    let yPos = contentTop;
+    for (const line of csvLines) {
+      if (yPos > HEIGHT - 16) break;
+      ctx.fillStyle = FG;
+      ctx.fillText(line, 20, yPos + 10);
+      yPos += 16;
+    }
+  }
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = FG;
+  if (active in dotExplain) {
+    ctx.fillText(dotExplain[active], WIDTH / 2, HEIGHT - 28);
+  }
+  ctx.fillText("make it so: turn problem tree into causal diagrams and double triangles",
+               WIDTH / 2, HEIGHT - 10);
+
+  requestAnimationFrame(draw);
+}
+
+loadDotExplain();
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

@@ -132,20 +132,22 @@ while True:
             form_result = form_entry.get_text().strip()
             close_form()
             if form_result:
+                found = False
                 for search_dir in [SCRIPT_DIR, SIXD_DIR]:
-                    for name in [form_result, form_result + ".csv", form_result + ".txt"]:
-                        path = os.path.join(search_dir, name)
-                        if os.path.isfile(path):
-                            with open(path, encoding="utf-8") as _f:
-                                csv_lines = [l.rstrip() for l in _f.readlines()]
-                            csv_error = None
-                            break
-                    else:
-                        continue
-                    break
-                else:
+                    for fname in os.listdir(search_dir):
+                        if form_result.lower() in fname.lower() and "tree" in fname.lower():
+                            path = os.path.join(search_dir, fname)
+                            if os.path.isfile(path):
+                                with open(path, encoding="utf-8") as _f:
+                                    csv_lines = [l.rstrip() for l in _f.readlines()]
+                                csv_error = None
+                                found = True
+                                break
+                    if found:
+                        break
+                if not found:
                     csv_lines = []
-                    csv_error = f"not found: {form_result}"
+                    csv_error = f"not found: {form_result} (with 'tree')"
         if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
             if form_panel:
                 close_form()
