@@ -35,10 +35,8 @@ right_cx = img_x + int(img_w * 0.76)
 lens_cy  = img_y + int(img_h * 0.72)
 
 links = [
-    {"label": "six_dots.py",      "file": os.path.join(SCRIPT_DIR, "six_dots.py"),       "cx": left_cx,  "cy": lens_cy - 24},
-    {"label": "yellow.py",        "file": os.path.join(SCRIPT_DIR, "yellow.py"),          "cx": left_cx,  "cy": lens_cy + 24},
-    {"label": "prompt_maker_cli.py",    "file": os.path.join(SCRIPT_DIR, "prompt_maker_cli.py"),    "cx": right_cx, "cy": lens_cy - 24},
-    {"label": "load_double_triangle.py", "file": os.path.join(SCRIPT_DIR, "load_double_triangle.py"), "cx": right_cx, "cy": lens_cy + 24},
+    {"label": "six_dots.py",             "file": os.path.join(SCRIPT_DIR, "six_dots.py"),             "cx": left_cx,  "cy": lens_cy},
+    {"label": "load_double_triangle.py", "file": os.path.join(SCRIPT_DIR, "load_double_triangle.py"), "cx": right_cx, "cy": lens_cy},
 ]
 
 for link in links:

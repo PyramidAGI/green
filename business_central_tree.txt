@@ -1,0 +1,34 @@
+                      business central connection fails
+                     /                |                \
+              authentication     data exchange       deployment
+                  fails              fails             fails
+             /     |      \         /      \              |
+         wrong   token   missing  api      data         wrong
+         creds  expired   perms  rejected mismatch   environment
+                   |        |     /    \      |            |
+                refresh   app   wrong  rate  field    sandbox/prod
+                missing  not    url   limit  mapping    mixed up
+                   |    registered      |     |            |
+               no token             no retry schema      single
+                cache               backoff  not synced  config
+
+node 0:  business central connection fails
+node 1:  authentication fails
+node 2:  data exchange fails
+node 3:  deployment fails
+node 4:  wrong credentials used
+node 5:  token expired
+node 6:  missing permissions
+node 7:  api call rejected
+node 8:  data mismatch
+node 9:  wrong environment used
+node 10: token refresh not implemented
+node 11: app not registered in entra id
+node 12: wrong endpoint url
+node 13: rate limit hit
+node 14: field mapping wrong
+node 15: sandbox and production mixed up
+node 16: no token cache kept
+node 17: no retry with backoff
+node 18: schema not synced with bc
+node 19: single config for all environments

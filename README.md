@@ -27,15 +27,14 @@ python six_dots.py
 
 ## glasses.py
 
-glasses.py can start three different programs. They are the culmination of a year's work on AI.
+glasses.py can start two different programs. They are the culmination of a year's work on AI.
 
 A pygame launcher shaped like a pair of glasses.
 
-The glasses image is displayed as the background. Three clickable file links are placed inside the lens areas:
+The glasses image is displayed as the background. Two clickable file links are placed inside the lens areas:
 
-- **six_dots.py** — left lens (top)
-- **yellow.py** — left lens (bottom)
-- **prompt_maker_cli.py** — right lens
+- **six_dots.py** — left lens
+- **load_double_triangle.py** — right lens
 
 Clicking a link launches it with Python. Links highlight in red on hover.
 
