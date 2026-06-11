@@ -236,3 +236,23 @@ The goal is an intelligent machine. The problem tree and its conversion to causa
 **Why the eval loop matters more than it looks.** The eval in quark_pairs is the first piece of the machine improving its own model: suggestions tested against what actually gets built. Extend that pattern upward — let the system propose causal diagrams from problem trees, run the triangles, and use the criteria (which are machine-checkable by design!) to score whether the diagnosis was right — and the conversion step starts migrating from the head into the system. The criteria are the secret weapon there: because they must be measurable, the machine can eventually check its own beliefs against the world. That self-correction loop, more than any single component, is what would make it deserve the word "intelligent."
 
 So: the trees, diagrams, and triangles are the right scaffolding. The next milestone isn't more of them — it's the first conversion the machine does without the human.
+
+## Appendix A: How to build the first conversion the machine does without the human
+
+The trick is to split the conversion into layers — most of it is mechanical, and the genuinely intelligent part is smaller than it looks.
+
+**Step 0: Make the tree format carry its own structure.** The node lists (`node 4: wrong product used`) don't encode the edges — those live only in the ASCII drawing, which a human reads. Add one thing to the format: a parent reference per node (`node 4: wrong product used < 1`). This isn't cheating — it's giving the machine the same information the drawing gives a human.
+
+**Step 1: Tree → factors is pure mechanics.** Converting every node into `;c;factor;name;parent;;;;` (as done by hand for `car_clean_tree.txt` in `sixd/causaldiagram2.csv`) is a deterministic format conversion. No intelligence needed; this part is just a script. Write it first because it's free.
+
+**Step 2: Criteria are the first real intelligence — constrain them into existence.** The machine must propose a measurable criterion per leaf factor. Don't ask an open question ("what's a good criterion?"); force a closed form: *quantity + comparator + threshold + unit* ("pressure **below 100 bar**", "dirt **older than 2 days**"). Two-stage approach: map each leaf to its nearest quark (step 3's mapper), and give each quark two or three criterion *templates* — `stat` gets "X below/above N", `time` gets "X older than N days". An LLM (the prompt_maker pipeline is sitting right there) only fills the blanks. Then a dumb validator rejects anything without a number in it. The validator is what makes this safe to automate: garbage criteria can't get through, because measurability is checkable by format.
+
+**Step 3: A word→quark mapper closes the vocabulary.** "Pressure" → `force` or `stat`, "dried" → `time`. Build a small synonym table (39 quarks × a handful of words each), with an LLM fallback for unknown words — and *log every mapping decision* to a file, the same way suggestions.log works. Mappings the human corrects become the table's next version. This is the symbol-grounding problem in miniature, and the log is how the machine learns the ontology instead of guessing it forever.
+
+**Step 4: Choosing transforms is already half-built.** Once each leaf factor has a quark, the double triangle wires are: factor's quark (observable side) → an action quark, ranked by the role matrix in quark_pairs. Pick the top-scoring unseen candidate per branch. This step needs almost no new code — it's `suggest` with the left side pinned.
+
+**Step 5: The machine drafts, the human grades — and the grade is logged.** Generated files land as drafts (`causaldiagram_draft.csv`, `doubletriangle_draft.csv`). The human accepts, edits, or rejects. The diff between draft and what is kept is the eval signal, logged like suggestions.log. At first there will be many edits; the conversion is "done without the human" the first time a draft is accepted unchanged. That's a concrete, measurable milestone — the criterion discipline applied to the machine itself.
+
+**Build order:** 0 and 1 in an afternoon (pure plumbing), 3 before 2 (criteria templates need the quark mapping), then 4, then 5. The first end-to-end run should target `business_central_tree.txt`, because it was built but never converted — so the machine's first conversion is one that never passed through a human head.
+
+The deeper point: never ask the machine to be creative where you can ask it to be *checkable*. Structure conversion is deterministic, criteria are template-constrained, transforms are matrix-ranked. The LLM only fills small, validated holes. Intelligence arrives not as one clever step, but as the steady migration of decisions from the head into logged, scored, self-correcting mechanisms.
