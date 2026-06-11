@@ -1,0 +1,11 @@
+;;;;;;;;
+;c;transform;radiation;drive;;;;
+;c;transform;energy;increase;;;;
+;c;transform;event;waitfor;;;;
+;c;transform;time;sequence;;;;
+;q;sensor;;;;;;
+;c;actuator;;;;;;
+;c;control;;;;;;
+;c;plan;;;;;;
+;c;nav;;;;;;
+;;;;;;;;

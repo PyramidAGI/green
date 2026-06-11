@@ -159,6 +159,26 @@ As a double triangle it's complete: sensor = radiation (lux/irradiance), actuato
 
 The organizational mirror: radiation as *exposure/attention* driving *motion* — a market stall that physically rotates its display toward foot traffic, or a campaign that shifts effort toward wherever attention shines. Same wire, no electronics.
 
+## Example: doubletriangle4.csv — the sunflower solar tracker
+
+The literal contents of `sixd/doubletriangle4.csv`:
+
+```
+;;;;;;;;
+;c;transform;radiation;drive;;;;
+;c;transform;energy;increase;;;;
+;c;transform;event;waitfor;;;;
+;c;transform;time;sequence;;;;
+;q;sensor;;;;;;
+;c;actuator;;;;;;
+;c;control;;;;;;
+;c;plan;;;;;;
+;c;nav;;;;;;
+;;;;;;;;
+```
+
+Four observable→action wires: `radiation -> drive` (sunlight difference drives the tilt motor), `energy -> increase` (the point of tracking: yield goes up), `event -> waitfor` (storm or nightfall: park and wait), `time -> sequence` (the daily east-to-west sweep follows the clock).
+
 ## Measuring the social quarks
 
 There is no buyable sensor for quarks like `group`, `conflict`, `reward` or `val` — you build the sensor instead. A sensor is anything that turns a state into a number on a schedule. Three families:
