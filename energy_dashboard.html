@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Energieplanning Dashboard</title>
+<style>
+  :root {
+    --bg: #f0f2ef;
+    --card: #ffffff;
+    --ink: #25332a;
+    --muted: #6b776e;
+    --green: #3cb371;
+    --yellow: #e6be3c;
+    --red: #d6554e;
+    --blue: #3c78b4;
+    --purple: #8a64c8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+  header {
+    background: var(--ink); color: #fff; padding: 14px 24px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+  }
+  header h1 { font-size: 20px; margin: 0; font-weight: 600; }
+  #clock { font-size: 13px; color: #b9c4bc; }
+  .grid {
+    display: grid; gap: 16px; padding: 16px 24px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    max-width: 1400px; margin: 0 auto;
+  }
+  .card {
+    background: var(--card); border-radius: 10px; padding: 16px 18px;
+    box-shadow: 0 2px 8px rgba(40,60,45,.10);
+  }
+  .card h2 { font-size: 15px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .big { font-size: 30px; font-weight: 700; margin: 4px 0; }
+  .sub { font-size: 12.5px; color: var(--muted); }
+  canvas { width: 100%; height: auto; display: block; }
+  .bar-wrap { background: #e4e8e3; border-radius: 6px; height: 22px; overflow: hidden; margin: 6px 0; }
+  .bar { height: 100%; border-radius: 6px; transition: width .4s; }
+  .row { display: flex; justify-content: space-between; font-size: 13px; margin: 3px 0; }
+  .advice {
+    border-left: 4px solid var(--green); background: #eef7f0;
+    padding: 8px 12px; margin: 6px 0; font-size: 13px; border-radius: 0 6px 6px 0;
+  }
+  .advice.warn { border-color: var(--yellow); background: #faf5e4; }
+  .advice.urgent { border-color: var(--red); background: #faeae8; }
+  .countdown { display: flex; gap: 10px; margin: 8px 0; }
+  .countdown div {
+    background: var(--ink); color: #fff; border-radius: 8px; padding: 8px 0;
+    flex: 1; text-align: center;
+  }
+  .countdown .num { font-size: 24px; font-weight: 700; }
+  .countdown .lbl { font-size: 10px; color: #b9c4bc; text-transform: uppercase; }
+  input[type=range] { width: 100%; }
+  .controls label { font-size: 12.5px; color: var(--muted); display: block; margin-top: 8px; }
+  .plan-slot {
+    display: inline-block; width: calc(100%/24 - 1px); height: 26px;
+    border-radius: 3px; margin: 0; vertical-align: middle;
+  }
+  .legend { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+  .legend span { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 4px 0 10px; vertical-align: middle; }
+  footer { text-align: center; font-size: 11px; color: var(--muted); padding: 10px 0 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>&#9889; Energieplanning</h1>
+  <div id="clock"></div>
+</header>
+
+<div class="grid">
+
+  <!-- Salderingsregeling -->
+  <div class="card">
+    <h2><span class="dot" style="background:var(--red)"></span>Salderingsregeling</h2>
+    <div class="sub">Stopt op 1 januari 2027 &mdash; daarna levert terugleveren veel minder op.</div>
+    <div class="countdown">
+      <div><div class="num" id="cd-days">–</div><div class="lbl">dagen</div></div>
+      <div><div class="num" id="cd-hours">–</div><div class="lbl">uren</div></div>
+      <div><div class="num" id="cd-mins">–</div><div class="lbl">minuten</div></div>
+    </div>
+    <div class="row"><span>Teruglevertarief nu (salderen)</span><b id="tarief-nu">&euro; 0,25 / kWh</b></div>
+    <div class="row"><span>Teruglevertarief na 1-1-2027</span><b id="tarief-na">&euro; 0,05 / kWh</b></div>
+    <div id="saldering-advies" class="advice warn"></div>
+  </div>
+
+  <!-- Zonnepanelen -->
+  <div class="card">
+    <h2><span class="dot" style="background:var(--yellow)"></span>Zonnepanelen &mdash; zonuren vandaag</h2>
+    <div class="big"><span id="sun-hours">–</span> zonuren</div>
+    <div class="sub">Verwachte opbrengst: <b id="solar-yield">–</b> kWh (6,2 kWp installatie)</div>
+    <canvas id="solar-chart" width="600" height="180"></canvas>
+    <div class="legend">verwachte zoninstraling per uur &mdash; piek <span style="background:var(--yellow)"></span>beste uren voor eigen verbruik</div>
+  </div>
+
+  <!-- Autobatterij -->
+  <div class="card">
+    <h2><span class="dot" style="background:var(--blue)"></span>Autobatterij laden</h2>
+    <div class="row"><span>Huidige lading</span><b><span id="soc-val">55</span>%</b></div>
+    <div class="bar-wrap"><div class="bar" id="soc-bar" style="background:var(--blue);width:55%"></div></div>
+    <div class="controls">
+      <label>Huidige lading: <span id="soc-lbl">55</span>%</label>
+      <input type="range" id="soc" min="0" max="100" value="55">
+      <label>Gewenste lading morgenochtend: <span id="target-lbl">80</span>%</label>
+      <input type="range" id="target" min="20" max="100" value="80">
+    </div>
+    <div class="row"><span>Te laden</span><b id="kwh-needed">– kWh</b> (75 kWh accu)</div>
+    <div id="charge-advies" class="advice"></div>
+  </div>
+
+  <!-- Warmtepomp -->
+  <div class="card">
+    <h2><span class="dot" style="background:var(--purple)"></span>Warmtepomp</h2>
+    <div class="row"><span>Buitentemperatuur</span><b id="temp-out">7 &deg;C</b></div>
+    <div class="row"><span>Verwacht verbruik vandaag</span><b id="hp-kwh">– kWh</b></div>
+    <div class="row"><span>COP (rendement)</span><b id="hp-cop">–</b></div>
+    <div class="controls">
+      <label>Buitentemperatuur: <span id="temp-lbl">7</span> &deg;C</label>
+      <input type="range" id="temp" min="-10" max="25" value="7">
+    </div>
+    <div id="hp-advies" class="advice"></div>
+  </div>
+
+  <!-- Dagplanning -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <h2><span class="dot" style="background:var(--green)"></span>Dagplanning &mdash; beste uren</h2>
+    <div class="sub">0u t/m 23u &mdash; plan zware verbruikers in de gele zonne-uren</div>
+    <div id="plan-strip" style="margin:10px 0; white-space:nowrap;"></div>
+    <div class="legend">
+      <span style="background:#e4e8e3"></span>rustig
+      <span style="background:var(--yellow)"></span>zonnepiek: auto laden / warmtepomp boosten
+      <span style="background:var(--blue)"></span>EV-laadvenster
+      <span style="background:var(--purple)"></span>warmtepomp-boost
+    </div>
+    <div id="plan-advies" class="advice"></div>
+  </div>
+
+  <!-- Buren -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <h2><span class="dot" style="background:var(--green)"></span>Energieverbruik t.o.v. de buurt</h2>
+    <canvas id="nb-chart" width="1200" height="200"></canvas>
+    <div class="legend"><span style="background:var(--green)"></span>jouw huishouden <span style="background:#b9c4bc"></span>gemiddelde buurt (vergelijkbare woningen)</div>
+    <div id="nb-advies" class="advice"></div>
+  </div>
+
+</div>
+<footer>Demo-dashboard &mdash; alle cijfers zijn voorbeelddata. Tarieven indicatief.</footer>
+
+<script>
+const SALDERING_END = new Date(2027, 0, 1); // 1 jan 2027
+const BATTERY_KWH = 75;
+const CHARGE_KW = 7.4;     // thuislader
+const KWP = 6.2;
+
+// ---- zonuren: gauss-achtige curve rond 13u ----
+const sunCurve = [];
+for (let h = 0; h < 24; h++) {
+  const x = (h - 13) / 3.2;
+  sunCurve.push(Math.max(0, Math.exp(-x * x) - 0.05));
+}
+const sunHours = sunCurve.reduce((a, b) => a + b, 0).toFixed(1);
+const solarYield = (sunHours * KWP * 0.8).toFixed(1);
+
+// ---- buren: 14 dagen verbruik ----
+const myUse = [], nbUse = [];
+for (let d = 0; d < 14; d++) {
+  myUse.push(7 + 3 * Math.sin(d / 2) + Math.random() * 2);
+  nbUse.push(9 + 2.5 * Math.sin(d / 2 + 1) + Math.random() * 2);
+}
+
+function fmt(n) { return n.toString().padStart(2, "0"); }
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById("clock").textContent =
+    now.toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) +
+    "  " + fmt(now.getHours()) + ":" + fmt(now.getMinutes()) + ":" + fmt(now.getSeconds());
+
+  let ms = SALDERING_END - now;
+  if (ms < 0) ms = 0;
+  const days = Math.floor(ms / 864e5);
+  const hours = Math.floor(ms % 864e5 / 36e5);
+  const mins = Math.floor(ms % 36e5 / 6e4);
+  document.getElementById("cd-days").textContent = days;
+  document.getElementById("cd-hours").textContent = hours;
+  document.getElementById("cd-mins").textContent = mins;
+
+  const adv = document.getElementById("saldering-advies");
+  if (ms === 0) {
+    adv.className = "advice urgent";
+    adv.innerHTML = "<b>De salderingsregeling is gestopt.</b> Terugleveren levert weinig op: maximaliseer eigen verbruik op zonne-uren (auto, warmtepomp, boiler).";
+  } else if (days < 180) {
+    adv.className = "advice urgent";
+    adv.innerHTML = "<b>Nog minder dan 6 maanden salderen.</b> Bereid je voor: verschuif verbruik naar zonne-uren en overweeg een thuisbatterij.";
+  } else {
+    adv.className = "advice warn";
+    adv.innerHTML = "<b>Salderen kan nog.</b> Terugleveren is nu nog gunstig, maar went vast aan eigen verbruik op zonne-uren &mdash; na 1-1-2027 is dat de winst.";
+  }
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ---- zonnegrafiek ----
+document.getElementById("sun-hours").textContent = sunHours;
+document.getElementById("solar-yield").textContent = solarYield;
+(function drawSolar() {
+  const c = document.getElementById("solar-chart"), ctx = c.getContext("2d");
+  ctx.clearRect(0, 0, c.width, c.height);
+  const w = c.width / 24;
+  const max = Math.max(...sunCurve);
+  ctx.font = "11px Segoe UI";
+  for (let h = 0; h < 24; h++) {
+    const v = sunCurve[h] / max;
+    const bh = v * (c.height - 30);
+    ctx.fillStyle = v > 0.55 ? "#e6be3c" : "#d8dcd5";
+    ctx.fillRect(h * w + 2, c.height - 20 - bh, w - 4, bh);
+    if (h % 3 === 0) {
+      ctx.fillStyle = "#6b776e";
+      ctx.fillText(h + "u", h * w + 4, c.height - 5);
+    }
+  }
+})();
+
+// ---- autobatterij ----
+function updateCharge() {
+  const soc = +document.getElementById("soc").value;
+  const target = +document.getElementById("target").value;
+  document.getElementById("soc-lbl").textContent = soc;
+  document.getElementById("soc-val").textContent = soc;
+  document.getElementById("soc-bar").style.width = soc + "%";
+  const needPct = Math.max(0, target - soc);
+  const kwh = needPct / 100 * BATTERY_KWH;
+  document.getElementById("target-lbl").textContent = target;
+  document.getElementById("kwh-needed").textContent = kwh.toFixed(1) + " kWh";
+  const hours = kwh / CHARGE_KW;
+  const adv = document.getElementById("charge-advies");
+  if (kwh === 0) {
+    adv.className = "advice";
+    adv.textContent = "Niets te laden: de accu zit al op of boven je doel.";
+  } else if (kwh <= solarYield * 0.6) {
+    adv.className = "advice";
+    adv.textContent = "Laad tussen 11u en 15u: " + kwh.toFixed(1) + " kWh past binnen de zonnepiek (" +
+      hours.toFixed(1) + " uur laden op " + CHARGE_KW + " kW). Gratis zonnestroom, geen teruglevering nodig.";
+  } else {
+    adv.className = "advice warn";
+    adv.textContent = "Te veel voor de zon alleen (" + hours.toFixed(1) + " uur laden nodig). Start om 11u op zon en laad het restant vannacht op daltarief bij.";
+  }
+  buildPlan(kwh);
+}
+document.getElementById("soc").addEventListener("input", updateCharge);
+document.getElementById("target").addEventListener("input", updateCharge);
+
+// ---- warmtepomp ----
+function updateHP() {
+  const t = +document.getElementById("temp").value;
+  document.getElementById("temp-lbl").textContent = t;
+  document.getElementById("temp-out").innerHTML = t + " &deg;C";
+  const cop = Math.max(1.8, Math.min(5, 2.2 + (t + 10) * 0.09)).toFixed(1);
+  const heatDemand = Math.max(0, (18 - t)) * 2.1; // kWh warmte
+  const kwh = (heatDemand / cop).toFixed(1);
+  document.getElementById("hp-cop").textContent = cop;
+  document.getElementById("hp-kwh").textContent = kwh + " kWh";
+  const adv = document.getElementById("hp-advies");
+  if (t >= 16) {
+    adv.className = "advice";
+    adv.textContent = "Weinig warmtevraag. Gebruik de zonnepiek eventueel voor warm tapwater (boilerboost rond 13u).";
+  } else if (t >= 5) {
+    adv.className = "advice";
+    adv.textContent = "Boost de warmtepomp tussen 12u en 15u op zonnestroom en laat hem 's nachts lager staan: zelfde comfort, lagere rekening.";
+  } else {
+    adv.className = "advice warn";
+    adv.textContent = "Koude dag (COP " + cop + "): warmtepomp draait lang. Verwarm het huis extra op tijdens de zonnepiek als warmtebuffer voor de avond.";
+  }
+}
+document.getElementById("temp").addEventListener("input", updateHP);
+
+// ---- dagplanning ----
+function buildPlan(evKwh) {
+  const strip = document.getElementById("plan-strip");
+  strip.innerHTML = "";
+  const evHours = Math.min(6, Math.ceil(evKwh / CHARGE_KW));
+  const max = Math.max(...sunCurve);
+  for (let h = 0; h < 24; h++) {
+    const slot = document.createElement("span");
+    slot.className = "plan-slot";
+    slot.title = h + ":00";
+    const sunny = sunCurve[h] / max > 0.55;
+    let color = "#e4e8e3";
+    if (sunny) color = "var(--yellow)";
+    if (evHours > 0 && h >= 11 && h < 11 + evHours) color = "var(--blue)";
+    if (h >= 12 && h < 15 && !(evHours > 0 && h >= 11 && h < 11 + evHours)) color = "var(--purple)";
+    slot.style.background = color;
+    strip.appendChild(slot);
+  }
+  document.getElementById("plan-advies").innerHTML =
+    "<b>Vandaag:</b> EV laden vanaf 11:00 (" + (evHours || 0) + " uur), warmtepomp-boost 12:00&ndash;15:00. " +
+    "Vaatwasser en wasmachine ook het liefst tussen 11:00 en 15:00 &mdash; zo blijft er na 2027 zo min mogelijk teruglevering over.";
+}
+
+// ---- burenvergelijking ----
+(function drawNeighbours() {
+  const c = document.getElementById("nb-chart"), ctx = c.getContext("2d");
+  ctx.clearRect(0, 0, c.width, c.height);
+  const groups = 14, gw = c.width / groups;
+  const max = Math.max(...myUse, ...nbUse) * 1.15;
+  ctx.font = "11px Segoe UI";
+  for (let d = 0; d < groups; d++) {
+    const mh = myUse[d] / max * (c.height - 30);
+    const nh = nbUse[d] / max * (c.height - 30);
+    ctx.fillStyle = "#b9c4bc";
+    ctx.fillRect(d * gw + gw * 0.5, c.height - 20 - nh, gw * 0.28, nh);
+    ctx.fillStyle = "#3cb371";
+    ctx.fillRect(d * gw + gw * 0.16, c.height - 20 - mh, gw * 0.28, mh);
+    ctx.fillStyle = "#6b776e";
+    ctx.fillText("dag " + (d + 1), d * gw + gw * 0.2, c.height - 5);
+  }
+  const mAvg = myUse.reduce((a, b) => a + b) / groups;
+  const nAvg = nbUse.reduce((a, b) => a + b) / groups;
+  const diff = ((1 - mAvg / nAvg) * 100).toFixed(0);
+  const adv = document.getElementById("nb-advies");
+  if (mAvg < nAvg) {
+    adv.className = "advice";
+    adv.innerHTML = "Je verbruikt gemiddeld <b>" + diff + "% minder</b> dan vergelijkbare buren (" +
+      mAvg.toFixed(1) + " vs " + nAvg.toFixed(1) + " kWh/dag). Houd dit vast &mdash; en verschuif wat overblijft naar zonne-uren.";
+  } else {
+    adv.className = "advice warn";
+    adv.innerHTML = "Je verbruikt gemiddeld <b>" + Math.abs(diff) + "% meer</b> dan vergelijkbare buren (" +
+      mAvg.toFixed(1) + " vs " + nAvg.toFixed(1) + " kWh/dag). Check sluipverbruik en plan zware apparaten op de zonnepiek.";
+  }
+})();
+
+updateHP();
+updateCharge();
+</script>
+</body>
+</html>

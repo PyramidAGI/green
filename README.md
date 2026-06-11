@@ -148,3 +148,13 @@ Combining the two helps — and the architecture already expects it: the orchest
 So the division of labor is clean: **causal diagram = why, double triangle = do.** Combined, the café gets a loop that not only reacts but reacts to the right cause — which is precisely the "problem tree → causal diagram → double triangle" pipeline, just running on one concrete Saturday afternoon.
 
 One caveat: for a small café the formal combination can be overkill in practice — the shift lead's intuition *is* the causal diagram most days. The combination pays off when symptoms recur, when the team changes often (knowledge needs to live in the diagram instead of in one person's head), or when you want the orchestrator to handle it without a human diagnosing at all.
+
+## An application for wire k 5 19: radiation → drive
+
+`k 5 19` is the wire **radiation → drive**: measured radiation drives a motor. An observable directly powering an action.
+
+**Application: a sunflower solar tracker.** Two small light sensors (or one moved by the panel itself) measure solar radiation on either side of your solar panel; the difference drives a slow tilt motor until both sides read equal — the panel continuously faces the sun, like a sunflower. Single-axis tracking typically yields 20–30% more energy, which matters extra after the salderingsregeling stops: more midday production is only worth something if you catch and use it.
+
+As a double triangle it's complete: sensor = radiation (lux/irradiance), actuator = drive (the tilt motor), control = "balance left and right readings" at maybe 0.1 Hz, plan = park flat at night and in storm wind, nav = switch between tracking mode and park mode. On a Raspberry Pi: two photodiodes on an ADC in, one motor driver out, and the whole behavior is just `;c;transform;radiation;drive` in a doubletriangle CSV.
+
+The organizational mirror: radiation as *exposure/attention* driving *motion* — a market stall that physically rotates its display toward foot traffic, or a campaign that shifts effort toward wherever attention shines. Same wire, no electronics.
