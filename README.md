@@ -158,3 +158,27 @@ One caveat: for a small café the formal combination can be overkill in practice
 As a double triangle it's complete: sensor = radiation (lux/irradiance), actuator = drive (the tilt motor), control = "balance left and right readings" at maybe 0.1 Hz, plan = park flat at night and in storm wind, nav = switch between tracking mode and park mode. On a Raspberry Pi: two photodiodes on an ADC in, one motor driver out, and the whole behavior is just `;c;transform;radiation;drive` in a doubletriangle CSV.
 
 The organizational mirror: radiation as *exposure/attention* driving *motion* — a market stall that physically rotates its display toward foot traffic, or a campaign that shifts effort toward wherever attention shines. Same wire, no electronics.
+
+## Measuring the social quarks
+
+There is no buyable sensor for quarks like `group`, `conflict`, `reward` or `val` — you build the sensor instead. A sensor is anything that turns a state into a number on a schedule. Three families:
+
+**1. Count events that already happen** (cheapest, most reliable)
+- `transaction` — completed repairs, sales, signed-off tasks. Already countable in a notebook or till.
+- `reward` — thank-yous given, donations in the jar (weigh it), compliments logged.
+- `group` — attendance: who showed up, headcount per meeting. A sign-in sheet *is* a group sensor.
+- `contract` — agreements made vs. kept (deadline met yes/no is binary and brutal).
+
+**2. Ask on a fixed schedule** (surveys are sensors with a slow sample rate)
+- `val` / `pref` — a 3-question monthly poll: "rate this 1–5", "pick your top choice". Short and recurring beats long and once.
+- `conflict` — don't ask "is there conflict?" — ask countable proxies: "how many discussions stayed unresolved this month?", or count agenda items that return three meetings in a row.
+- `dominate` — speaking-time share in meetings (a phone timer works), or who made the last 10 decisions. Skewed ratio = dominance reading.
+
+**3. Read digital traces** (passive, but mind privacy)
+- `organization` — ratio of planned vs. ad-hoc items in the shared calendar; how many roles have a name attached.
+- `own` — items in the shared space with vs. without an owner assigned.
+- `group` / `conflict` — message volume and response times in the group chat (volume dropping is often the earliest quit-signal).
+
+Two design rules that make these work like real sensors: **fix the sampling rate** (same questions, same day each month — trend matters more than the absolute value) and **define the criterion before measuring** (that's what the causal diagram's criteria are for: "fewer than 2 thank-yous per repair" turns a fuzzy reward-level into a tripwire).
+
+This is also what the `q` in the double triangle's sensor row can mean for organizational triangles: *query* — the sensor is a question asked of people, and the answer arrives on the bus like any lux reading.
