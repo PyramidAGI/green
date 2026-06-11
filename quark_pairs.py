@@ -16,11 +16,18 @@ Run without arguments for the interactive menu, or use subcommands:
     python quark_pairs.py suggest --top 10 [--from O --to A] [--shuffle]
     python quark_pairs.py grid
     python quark_pairs.py save --top 5
+    python quark_pairs.py eval
+
+Every suggest run is logged to suggestions.log. The eval command is the
+downstream evaluation: it reports which suggested pairs were later built
+into a doubletriangle CSV (the conversion rate), per role combination —
+so the role matrix is tested against what actually gets built.
 """
 
 import argparse
 import random
 import sys
+from datetime import date
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
@@ -28,6 +35,7 @@ QUARKS_CSV = SCRIPT_DIR / "numbered quarks.csv"
 CONFIG_TXT = SCRIPT_DIR / "PromptMakerConfig.txt"
 LOG_TXT = SCRIPT_DIR / "PromptMakerLog.txt"
 SIXD_DIR = SCRIPT_DIR / "sixd"
+SUGGEST_LOG = SCRIPT_DIR / "suggestions.log"
 
 ROLES = {
     "container": "T", "shield": "T", "channel": "T", "support": "T",
@@ -74,20 +82,27 @@ def score(left: str, right: str) -> int:
     return ROLE_SCORE.get((role(left), role(right)), 1)
 
 
+def scan_triangles(names: set[str]) -> set[tuple[str, str]]:
+    """Collect quark pairs built into doubletriangle CSVs."""
+    built = set()
+    for path in SIXD_DIR.glob("doubletriangle*.csv"):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            parts = line.split(";")
+            if len(parts) >= 5 and parts[2] == "transform":
+                left, right = parts[3].strip().casefold(), parts[4].strip().casefold()
+                if left in names and right in names and left != right:
+                    built.add((left, right))
+    return built
+
+
 def scan_used(names: set[str]) -> set[tuple[str, str]]:
     """Collect quark pairs already used anywhere in the repo."""
-    used = set()
+    used = set(scan_triangles(names))
 
     def add(left: str, right: str) -> None:
         left, right = left.strip().casefold(), right.strip().casefold()
         if left in names and right in names and left != right:
             used.add((left, right))
-
-    for path in SIXD_DIR.glob("doubletriangle*.csv"):
-        for line in path.read_text(encoding="utf-8").splitlines():
-            parts = line.split(";")
-            if len(parts) >= 5 and parts[2] == "transform":
-                add(parts[3], parts[4])
 
     for path in (CONFIG_TXT, LOG_TXT):
         if not path.exists():
@@ -147,9 +162,70 @@ def cmd_suggest(quarks, used, top, role_from, role_to, shuffle) -> list[tuple[st
     for s, l, r in chosen:
         print(f"  score {s}  [{role(l)}->{role(r)}]  {l} -> {r}"
               f"   (k {num[l]} {num[r]})")
+    if chosen:
+        already = read_suggestions().keys()
+        today = date.today().isoformat()
+        with SUGGEST_LOG.open("a", encoding="utf-8") as f:
+            for s, l, r in chosen:
+                if (l, r) not in already:
+                    f.write(f"{today};{l};{r};{s}\n")
     if not chosen:
         print("  (no unseen pairs match)")
     return [(l, r) for _, l, r in chosen]
+
+
+def read_suggestions() -> dict[tuple[str, str], tuple[str, int]]:
+    """Pair -> (first suggested date, score) from suggestions.log."""
+    suggestions = {}
+    if not SUGGEST_LOG.exists():
+        return suggestions
+    for line in SUGGEST_LOG.read_text(encoding="utf-8").splitlines():
+        parts = line.strip().split(";")
+        if len(parts) == 4:
+            day, left, right, s = parts
+            if (left, right) not in suggestions:
+                suggestions[(left, right)] = (day, int(s) if s.isdigit() else 1)
+    return suggestions
+
+
+def cmd_eval(quarks) -> None:
+    """Downstream eval: which suggested pairs got built into a triangle?"""
+    suggestions = read_suggestions()
+    if not suggestions:
+        print(f"No suggestions logged yet ({SUGGEST_LOG.name} is empty).")
+        print("Run suggest a few times, build triangles, then come back.")
+        return
+    built = scan_triangles({n.casefold() for n in quarks.values()})
+    today = date.today()
+
+    converted, pending = [], []
+    for (l, r), (day, s) in suggestions.items():
+        days = (today - date.fromisoformat(day)).days
+        (converted if (l, r) in built else pending).append((day, days, s, l, r))
+
+    rate = 100 * len(converted) / len(suggestions)
+    print(f"Suggested: {len(suggestions)}   built into a triangle: {len(converted)}"
+          f"   conversion: {rate:.0f}%")
+
+    if converted:
+        print("\nConverted (suggestion -> triangle):")
+        for day, days, s, l, r in sorted(converted):
+            print(f"  {day}  score {s}  [{role(l)}->{role(r)}]  {l} -> {r}  ({days} days)")
+
+    combos = {}
+    for (l, r), (day, s) in suggestions.items():
+        key = f"{role(l)}->{role(r)}"
+        hit = (l, r) in built
+        sug, conv = combos.get(key, (0, 0))
+        combos[key] = (sug + 1, conv + (1 if hit else 0))
+    print("\nConversion per role combination (the test of the role matrix):")
+    for key, (sug, conv) in sorted(combos.items(), key=lambda kv: -kv[1][1] / kv[1][0]):
+        print(f"  {key}  {conv}/{sug}  ({100 * conv / sug:.0f}%)")
+
+    if pending:
+        print(f"\nOldest pending ({len(pending)} total):")
+        for day, days, s, l, r in sorted(pending)[:5]:
+            print(f"  {day}  score {s}  {l} -> {r}  ({days} days waiting)")
 
 
 def cmd_grid(quarks, used) -> None:
@@ -197,7 +273,7 @@ def ask_roles() -> tuple[str | None, str | None]:
 def interactive(quarks, used) -> None:
     print("Quark pairs — 39 quarks, 1482 ordered pairs")
     while True:
-        print("\n[s]tats  [g]rid  [n]suggest  [v]suggest+save  [q]uit")
+        print("\n[s]tats  [g]rid  [n]suggest  [v]suggest+save  [e]val  [q]uit")
         choice = input("Choice: ").strip().casefold()
         if choice == "q":
             return
@@ -205,6 +281,8 @@ def interactive(quarks, used) -> None:
             cmd_stats(quarks, used)
         elif choice == "g":
             cmd_grid(quarks, used)
+        elif choice == "e":
+            cmd_eval(quarks)
         elif choice in ("n", "v"):
             raw = input("How many pairs? [10]: ").strip()
             top = int(raw) if raw.isdigit() else 10
@@ -232,6 +310,7 @@ def main() -> int:
         p.add_argument("--shuffle", action="store_true",
                        help="random picks from the best score tier")
     sub.add_parser("grid", help="39x39 map of used and unseen pairs")
+    sub.add_parser("eval", help="conversion rate: suggested pairs that became triangles")
     args = parser.parse_args()
 
     quarks = load_quarks()
@@ -253,6 +332,8 @@ def main() -> int:
         cmd_suggest(quarks, used, args.top, args.role_from, args.role_to, args.shuffle)
     elif args.command == "grid":
         cmd_grid(quarks, used)
+    elif args.command == "eval":
+        cmd_eval(quarks)
     elif args.command == "save":
         pairs = cmd_suggest(quarks, used, args.top, args.role_from, args.role_to, args.shuffle)
         cmd_save(pairs)
