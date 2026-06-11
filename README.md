@@ -179,6 +179,28 @@ The literal contents of `sixd/doubletriangle4.csv`:
 
 Four observable→action wires: `radiation -> drive` (sunlight difference drives the tilt motor), `energy -> increase` (the point of tracking: yield goes up), `event -> waitfor` (storm or nightfall: park and wait), `time -> sequence` (the daily east-to-west sweep follows the clock).
 
+## Example: the car cleaning causal diagram, filtered to five criteria
+
+`sixd/causaldiagram2.csv` converts the whole of `car_clean_tree.txt` into factors and criteria. But five rows earn their place — chosen for coverage (how much of the tree they catch), checkability (cheap to measure), and actionability:
+
+```
+;;;;;;;;
+;c;criterion;pressure too low;below 100 bar at the nozzle;;;;
+;c;criterion;dirt dried on paint;dirt older than 2 days;;;;
+;c;criterion;cloth is worn;cloth used more than 30 washes;;;;
+;c;criterion;sponge is dirty;sponge not rinsed between panels;;;;
+;c;criterion;mineral deposit from water;water hardness above 8 dH and no drying within 5 minutes;;;;
+;;;;;;;;
+```
+
+1. **Pressure too low** — the main driver of the biggest branch (dirt not removed), and a one-glance gauge check.
+2. **Dirt dried on paint** — covers the whole "stubborn dirt" branch and turns it into a timing rule: wash before day 2, and the problem never exists.
+3. **Cloth is worn** — sits in two branches at once: equipment failure *and* scratch prevention. One counter, double coverage.
+4. **Sponge is dirty** — the top scratch cause, and the only criterion that costs nothing to fix: it's a habit, not a purchase.
+5. **Mineral deposit** — single-handedly covers the entire water-spots branch with two numbers.
+
+Deliberately left out: "pump is broken" and "hose leaks" are self-announcing failures — you notice them without a criterion, so monitoring them adds nothing. The five above are the ones worth *watching*, because they fail silently until the result disappoints.
+
 ## Measuring the social quarks
 
 There is no buyable sensor for quarks like `group`, `conflict`, `reward` or `val` — you build the sensor instead. A sensor is anything that turns a state into a number on a schedule. Three families:
