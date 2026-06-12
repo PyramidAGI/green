@@ -4,6 +4,12 @@
 
 ![The double triangle in its environment](triangle_wires.svg)
 
+- The red **double triangle** sits above with five white connection points along its base
+- Blue **measure wires** curve up from the environment into the base (sun → lux, plant → moisture, people → survey answers), arrowheads pointing in
+- Orange **influence wires** curve down from the base into the environment (motor, people), arrowheads pointing out
+- The **environment** is a green field holding sun, plant, people, and motor
+- Dashed wires mark *queries* — the `q` sensor: questions asked of people, answered like any reading
+
 ## Getting started with causal diagrams and double triangles
 
 1. Start with a problem you want solved, written as a short problem tree: the main complaint at the top, its causes branching below.
