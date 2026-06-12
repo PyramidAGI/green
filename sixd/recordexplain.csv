@@ -1,0 +1,11 @@
+e0;empty in most rows, the sentence or label in a cluster command row
+e1;c for a regular record, q for a query record such as the sensor row
+e2;the record type: transform, sensor, actuator, control, plan, nav, problem, factor, criterion, or a verb like solve, append, convert, ground in a cluster command row
+e3;left side in a transform row, problem name in a problem row, factor name in a factor row, criterion subject in a criterion row, object id in a cluster command row
+e4;right side in a transform row, parent factor name in a factor row, measurable threshold with number and unit in a criterion row, target id in a cluster command row
+e5;unused
+e6;first numeric parameter in a cluster command row, unused elsewhere
+e7;second numeric parameter in a cluster command row, unused elsewhere
+e8;unused
+rule;a row of only semicolons is a separator marking the start and end of a block
+rule;field text must never contain a semicolon because it is the field delimiter
