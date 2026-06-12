@@ -1,0 +1,7 @@
+;;;;;;;;
+measure the sun;c;measure;sun;radiation;;10;50;
+measure the plant;c;measure;plant;stat;;10;50;
+ask the people;q;measure;people;val;;10;50;
+drive the motor;c;influence;motor;drive;;60;50;
+thank the people;q;influence;people;reward;;10;50;
+;;;;;;;;
