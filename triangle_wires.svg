@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="600" viewBox="0 0 760 600" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbfbf8"/>
+      <stop offset="1" stop-color="#eef1ec"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f08a7a"/>
+      <stop offset="1" stop-color="#d6554e"/>
+    </linearGradient>
+    <linearGradient id="env" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b9e4c5"/>
+      <stop offset="1" stop-color="#8fcf9f"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#2a3a2f" flood-opacity="0.25"/>
+    </filter>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3c78b4"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e07b3c"/>
+    </marker>
+  </defs>
+
+  <rect width="760" height="600" fill="url(#bg)"/>
+
+  <text x="380" y="42" text-anchor="middle" font-size="21" font-weight="600" fill="#2f3e33" letter-spacing="1">THE DOUBLE TRIANGLE IN ITS ENVIRONMENT</text>
+  <text x="380" y="66" text-anchor="middle" font-size="13" fill="#6b776e" font-style="italic">wires from the base: measure in, influence out</text>
+
+  <!-- environment -->
+  <g filter="url(#shadow)">
+    <ellipse cx="380" cy="475" rx="330" ry="95" fill="url(#env)" stroke="#4c8f60" stroke-width="2"/>
+  </g>
+  <text x="380" y="567" text-anchor="middle" font-size="13" fill="#2f5e3d" font-style="italic">environment</text>
+
+  <!-- things in the environment -->
+  <g font-size="11.5" fill="#1d4129" text-anchor="middle">
+    <circle cx="175" cy="460" r="24" fill="#f4dd6e" stroke="#b89a2a" stroke-width="2"/>
+    <text x="175" y="498">sun</text>
+    <circle cx="300" cy="500" r="24" fill="#d8efd9" stroke="#4c8f60" stroke-width="2"/>
+    <text x="300" y="538">plant</text>
+    <circle cx="465" cy="495" r="24" fill="#e8d9f3" stroke="#8a64c8" stroke-width="2"/>
+    <text x="465" y="533">people</text>
+    <circle cx="585" cy="455" r="24" fill="#cfe3f5" stroke="#3c78b4" stroke-width="2"/>
+    <text x="585" y="493">motor</text>
+  </g>
+
+  <!-- sensor wires: environment -> triangle base (measure) -->
+  <path d="M 196 446 C 250 380, 290 340, 322 305" fill="none" stroke="#3c78b4" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <path d="M 310 478 C 330 420, 340 360, 350 308" fill="none" stroke="#3c78b4" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <path d="M 458 473 C 430 420, 410 360, 396 308" fill="none" stroke="#3c78b4" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#arrow-blue)"/>
+
+  <!-- actuator wires: triangle base -> environment (influence) -->
+  <path d="M 430 303 C 480 360, 540 400, 572 434" fill="none" stroke="#e07b3c" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
+  <path d="M 412 305 C 430 370, 450 420, 460 470" fill="none" stroke="#e07b3c" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#arrow-orange)"/>
+
+  <!-- double triangle -->
+  <g filter="url(#shadow)">
+    <polygon points="380,140 280,300 480,300" fill="url(#red)" stroke="#9c3530" stroke-width="2.5" stroke-linejoin="round"/>
+    <polygon points="380,140 330,220 430,220" fill="#ffffff" fill-opacity="0.28" stroke="none"/>
+  </g>
+  <text x="380" y="250" text-anchor="middle" font-size="16" font-weight="600" fill="#fff5f3">Double</text>
+  <text x="380" y="268" text-anchor="middle" font-size="16" font-weight="600" fill="#fff5f3">Triangle</text>
+  <text x="380" y="290" text-anchor="middle" font-size="10.5" fill="#ffe0db">ctrl / nav / plan · transforms</text>
+
+  <!-- base endpoints -->
+  <g fill="#fff" stroke="#9c3530" stroke-width="2">
+    <circle cx="322" cy="300" r="6"/>
+    <circle cx="350" cy="300" r="6"/>
+    <circle cx="396" cy="300" r="6"/>
+    <circle cx="412" cy="300" r="6"/>
+    <circle cx="430" cy="300" r="6"/>
+  </g>
+  <text x="300" y="330" text-anchor="middle" font-size="12" font-weight="600" fill="#3c78b4">sensor</text>
+  <text x="462" y="330" text-anchor="middle" font-size="12" font-weight="600" fill="#e07b3c">actuator</text>
+
+  <!-- legend -->
+  <g font-size="12" fill="#2f3e33">
+    <line x1="80" y1="105" x2="120" y2="105" stroke="#3c78b4" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+    <text x="128" y="109">measure: readings flow in (lux, queue length, a survey answer)</text>
+    <line x1="80" y1="128" x2="120" y2="128" stroke="#e07b3c" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
+    <text x="128" y="132">influence: actions flow out (PWM pulse, a schedule, a thank-you)</text>
+  </g>
+
+  <text x="380" y="592" text-anchor="middle" font-size="11" fill="#9aa59d" font-style="italic">the dashed wires are queries: questions asked of people, answered like any sensor</text>
+</svg>
