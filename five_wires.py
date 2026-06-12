@@ -50,8 +50,8 @@ class Environment:
         return int(daylight * 50000 + random.uniform(0, 2000))
 
 
-def log_record(label: str, kind: str, verb: str, obj: str, value: str) -> None:
-    fields = [label, kind, verb, obj, value, "", "", "", ""]
+def log_record(label: str, kind: str, verb: str, obj: str, quark: str, value: str) -> None:
+    fields = [label, kind, verb, obj, quark, "", value, "", ""]
     with WIRELOG_CSV.open("a", encoding="utf-8") as f:
         f.write(";".join(fields[:FIELDS]) + "\n")
 
@@ -59,13 +59,13 @@ def log_record(label: str, kind: str, verb: str, obj: str, value: str) -> None:
 def measure_sun(env: Environment) -> None:
     value = env.lux()
     print(f"  [wire 1] sun -> radiation: {value} lux")
-    log_record("measure the sun", "c", "measure", "sun", str(value))
+    log_record("measure the sun", "c", "measure", "sun", "radiation", str(value))
 
 
 def measure_plant(env: Environment) -> None:
     value = round(env.moisture, 1)
     print(f"  [wire 2] plant -> stat: {value}% soil moisture")
-    log_record("measure the plant", "c", "measure", "plant", str(value))
+    log_record("measure the plant", "c", "measure", "plant", "stat", str(value))
 
 
 def query_people(env: Environment) -> None:
@@ -75,7 +75,7 @@ def query_people(env: Environment) -> None:
     except ValueError:
         print(f"  not a number, keeping previous reading {env.mood:.1f}")
     print(f"  people -> val: {env.mood:.1f}/10")
-    log_record("ask the people", "q", "measure", "people", f"{env.mood:.1f}")
+    log_record("ask the people", "q", "measure", "people", "val", f"{env.mood:.1f}")
 
 
 def drive_motor(env: Environment, target: str = "") -> None:
@@ -87,14 +87,14 @@ def drive_motor(env: Environment, target: str = "") -> None:
         print("  not a number, motor unchanged")
         return
     print(f"  drive -> motor: set to {env.motor_speed:.0f}%")
-    log_record("drive the motor", "c", "influence", "motor", f"{env.motor_speed:.0f}")
+    log_record("drive the motor", "c", "influence", "motor", "drive", f"{env.motor_speed:.0f}")
 
 
 def thank_people(env: Environment) -> None:
     print("  [wire 5] q: a thank-you goes out to the people")
     env.mood = min(10.0, env.mood + 1.0)
     print(f"  reward -> people: mood rises to {env.mood:.1f}/10")
-    log_record("thank the people", "q", "influence", "people", f"{env.mood:.1f}")
+    log_record("thank the people", "q", "influence", "people", "reward", f"{env.mood:.1f}")
 
 
 def show_state(env: Environment) -> None:

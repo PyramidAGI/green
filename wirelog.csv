@@ -1,0 +1,10 @@
+measure the sun;c;measure;sun;radiation;;1123;;
+measure the plant;c;measure;plant;stat;;70.0;;
+ask the people;q;measure;people;val;;9.0;;
+drive the motor;c;influence;motor;drive;;90;;
+thank the people;q;influence;people;reward;;10.0;;
+measure the sun;c;measure;sun;radiation;;665;;
+measure the plant;c;measure;plant;stat;;68.2;;
+ask the people;q;measure;people;val;;6.0;;
+drive the motor;c;influence;motor;drive;;80;;
+thank the people;q;influence;people;reward;;7.0;;
