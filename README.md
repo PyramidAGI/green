@@ -84,6 +84,8 @@ Input shorthand: `lux power` is treated as `lux -> power`.
 
 Quarks from `numbered quarks.csv` can be referenced by number: `k` lists all quarks, `k N M` adds a transform from quark N to quark M (e.g. `k 1 5` adds `container -> radiation`).
 
+Type `p <problem description>` to auto-build transforms from a problem in plain language (e.g. `p pressure too low, dirt dried, team morale dropping`). This calls `build_triangle` from `problem_to_quarks.py` (see Appendix B): the problem's words are mapped to quarks, each becomes the observable side of a wire, and the best unseen action quark fills the right side. The wires are appended to the transform list — edit or save them like any other — and the combination's `triangle_score` is printed.
+
 ### Run
 
 ```
