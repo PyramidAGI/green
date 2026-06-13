@@ -407,3 +407,19 @@ All four defs live in `problem_to_quarks.py`, and the learning loop is wired end
 5. **Apply.** `quark_pairs.score()` reads `weights.json` on import: if a role-combo has a learned weight it wins, otherwise the static `ROLE_SCORE` matrix is used. So every later `suggest`, `build_triangle`, and `triangle_score` run reflects what actually worked.
 
 `weights.json` and `outcomes.log` are generated at runtime (not committed) — delete them to reset the system to its hand-written prior. The `grid` map still shows `base_score`, so the static matrix stays inspectable underneath the learned layer.
+
+**Inspecting what was learned.** Run `python problem_to_quarks.py eval` to see the loop's progress:
+
+```
+Outcomes logged: 2   solved: 1   abandoned: 1   solve rate: 50%
+
+Role-combo learning (solved/used  |  base -> learned weight):
+  O->A    1/2    |  3 -> 3.10
+  S->A    1/1    |  2 -> 2.10
+
+Most recent outcomes:
+  2026-06-13  solved     doubletriangle7.csv  (force->animate group->animate)
+  2026-06-13  abandoned  doubletriangle8.csv  (radiation->drive)
+```
+
+It reads `outcomes.log` and `weights.json` and reports the overall solve rate, a per role-combo `solved/used` tally showing how each combo moved off the matrix prior, and the most recent verdicts. This is the weights-loop counterpart to `quark_pairs.py eval` (which tracks suggested pairs that became triangles): together they show both halves of the self-correction loop — what gets *built* and what actually *worked*.
