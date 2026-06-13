@@ -25,6 +25,7 @@ so the role matrix is tested against what actually gets built.
 """
 
 import argparse
+import json
 import random
 import sys
 from datetime import date
@@ -36,6 +37,7 @@ CONFIG_TXT = SCRIPT_DIR / "PromptMakerConfig.txt"
 LOG_TXT = SCRIPT_DIR / "PromptMakerLog.txt"
 SIXD_DIR = SCRIPT_DIR / "sixd"
 SUGGEST_LOG = SCRIPT_DIR / "suggestions.log"
+WEIGHTS_JSON = SCRIPT_DIR / "weights.json"
 
 ROLES = {
     "container": "T", "shield": "T", "channel": "T", "support": "T",
@@ -78,8 +80,34 @@ def role(name: str) -> str:
     return ROLES.get(name, "?")
 
 
-def score(left: str, right: str) -> int:
+def load_weights() -> dict[tuple[str, str], float]:
+    """Learned role-combo weights from weights.json (see update_weights)."""
+    if not WEIGHTS_JSON.exists():
+        return {}
+    raw = json.loads(WEIGHTS_JSON.read_text(encoding="utf-8"))
+    return {tuple(k.split("->")): v for k, v in raw.items()}
+
+
+def save_weights(weights: dict[tuple[str, str], float]) -> None:
+    raw = {f"{a}->{b}": v for (a, b), v in weights.items()}
+    WEIGHTS_JSON.write_text(json.dumps(raw, indent=2), encoding="utf-8")
+
+
+# The hand-written role matrix is the prior; outcomes logged to weights.json
+# override it once they exist (load_double_triangle records solved/abandoned).
+_WEIGHTS = load_weights()
+
+
+def base_score(left: str, right: str) -> int:
+    """The static role-matrix score, before any learning."""
     return ROLE_SCORE.get((role(left), role(right)), 1)
+
+
+def score(left: str, right: str) -> float:
+    key = (role(left), role(right))
+    if key in _WEIGHTS:
+        return _WEIGHTS[key]
+    return ROLE_SCORE.get(key, 1)
 
 
 def scan_triangles(names: set[str]) -> set[tuple[str, str]]:
@@ -244,7 +272,7 @@ def cmd_grid(quarks, used) -> None:
             elif (l, r) in used:
                 row.append("#")
             else:
-                row.append(str(score(l, r)))
+                row.append(str(base_score(l, r)))  # single-char map of the prior
         print(f"  {ln:>2} {l:<12}  {''.join(row)}")
 
 

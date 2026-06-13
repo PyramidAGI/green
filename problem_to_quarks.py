@@ -12,16 +12,17 @@ Run a demo:
     python problem_to_quarks.py "pressure too low, dirt dried on the paint"
 """
 
-import json
 import sys
 from datetime import date
 from pathlib import Path
 
-from quark_pairs import load_quarks, role, score, unseen_ranked, scan_used
+from quark_pairs import (
+    base_score, load_quarks, load_weights, role, save_weights, score,
+    scan_used, unseen_ranked,
+)
 
 SCRIPT_DIR = Path(__file__).parent
 MAPPINGS_LOG = SCRIPT_DIR / "mappings.log"
-WEIGHTS_JSON = SCRIPT_DIR / "weights.json"
 
 # A handful of everyday words per quark. Extend freely; misses are logged to
 # mappings.log so the table grows around the problems people actually bring.
@@ -128,24 +129,15 @@ def build_triangle(problem: str, quarks, used, k: int = 5) -> list[tuple[str, st
     return wires
 
 
-def load_weights() -> dict[tuple[str, str], float]:
-    """Load the learnable role-combo weights from weights.json."""
-    if not WEIGHTS_JSON.exists():
-        return {}
-    raw = json.loads(WEIGHTS_JSON.read_text(encoding="utf-8"))
-    return {tuple(k.split("->")): v for k, v in raw.items()}
-
-
-def save_weights(weights: dict[tuple[str, str], float]) -> None:
-    raw = {f"{a}->{b}": v for (a, b), v in weights.items()}
-    WEIGHTS_JSON.write_text(json.dumps(raw, indent=2), encoding="utf-8")
-
-
 def update_weights(wires, solved: bool, weights: dict, lr: float = 0.1) -> dict:
-    """Nudge the score of each wire's role-combo up if solved, down if abandoned."""
+    """Nudge the score of each wire's role-combo up if solved, down if abandoned.
+
+    Unseen combos seed from the static role matrix (base_score) so learning
+    builds on the hand-written prior instead of resetting it to 1.0.
+    """
     for l, r in wires:
         key = (role(l), role(r))
-        weights[key] = weights.get(key, 1.0) + lr * (1 if solved else -1)
+        weights[key] = weights.get(key, base_score(l, r)) + lr * (1 if solved else -1)
     return weights
 
 
