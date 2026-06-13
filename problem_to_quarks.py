@@ -47,7 +47,7 @@ SYNONYMS = {
     "time": ["old", "delay", "dried", "aged", "wait", "late", "duration"],
     "loc": ["place", "position", "location", "where", "spot"],
     "event": ["incident", "trigger", "occurrence", "alarm", "happening"],
-    "problem": ["fault", "issue", "defect", "trouble", "failure"],
+    "problem": ["fault", "issue", "defect", "trouble", "failure", "dirt"],
     "pattern": ["trend", "shape", "recurring", "regular", "cycle"],
     "stat": ["count", "rate", "level", "measure", "metric", "amount"],
     "normal": ["baseline", "standard", "expected", "usual", "default"],

@@ -326,7 +326,7 @@ The full table (as implemented in `problem_to_quarks.py`) gives a handful of eve
 | time | O | old, delay, dried, aged, wait, late, duration |
 | loc | O | place, position, location, where, spot |
 | event | O | incident, trigger, occurrence, alarm, happening |
-| problem | O | fault, issue, defect, trouble, failure |
+| problem | O | fault, issue, defect, trouble, failure, dirt |
 | pattern | O | trend, shape, recurring, regular, cycle |
 | stat | O | count, rate, level, measure, metric, amount |
 | normal | O | baseline, standard, expected, usual, default |
