@@ -67,7 +67,7 @@ SYNONYMS = {
     "group": ["team", "attendance", "crowd", "meeting", "members"],
     "conflict": ["dispute", "clash", "argument", "tension", "disagreement"],
     "own": ["owner", "belong", "possess", "responsible", "assigned"],
-    "val": ["value", "rating", "worth", "score", "opinion"],
+    "val": ["value", "rating", "worth", "score", "opinion", "morale"],
     "pref": ["preference", "choice", "favor", "like", "want"],
     "dominate": ["control", "rule", "overpower", "lead", "boss"],
     "transaction": ["sale", "deal", "trade", "exchange", "purchase"],

@@ -344,7 +344,7 @@ The full table (as implemented in `problem_to_quarks.py`) gives a handful of eve
 | group | S | team, attendance, crowd, meeting, members |
 | conflict | S | dispute, clash, argument, tension, disagreement |
 | own | S | owner, belong, possess, responsible, assigned |
-| val | S | value, rating, worth, score, opinion |
+| val | S | value, rating, worth, score, opinion, morale |
 | pref | S | preference, choice, favor, like, want |
 | dominate | S | control, rule, overpower, lead, boss |
 | transaction | S | sale, deal, trade, exchange, purchase |
