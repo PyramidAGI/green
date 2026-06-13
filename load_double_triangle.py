@@ -13,8 +13,13 @@ Commands:
 
 from pathlib import Path
 from prompt_maker_cli import PromptMakerConfig
-from problem_to_quarks import build_triangle, triangle_score
+from datetime import date
+from problem_to_quarks import (
+    build_triangle, triangle_score, load_weights, save_weights, update_weights,
+)
 from quark_pairs import scan_used
+
+OUTCOMES_LOG = Path(__file__).parent / "outcomes.log"
 
 PROMA_DIR = Path(__file__).parent
 QUARKS_CSV = PROMA_DIR / "numbered quarks.csv"
@@ -67,6 +72,27 @@ def save(transforms: list[tuple[str, str]]) -> None:
     lines.append(SEP)
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"Saved {len(transforms)} transform(s) to {out}")
+    record_outcome(transforms, out.name)
+
+
+def record_outcome(transforms: list[tuple[str, str]], name: str) -> None:
+    """Ask whether the saved triangle solved the problem, then learn from it.
+
+    Nudges the role-combo weights (update_weights), persists weights.json, and
+    appends the verdict to outcomes.log.
+    """
+    answer = input("Did this triangle solve the problem? [y/N/skip]: ").strip().casefold()
+    if answer in ("s", "skip", ""):
+        return
+    solved = answer in ("y", "yes")
+    weights = update_weights(transforms, solved, load_weights())
+    save_weights(weights)
+    today = date.today().isoformat()
+    wires = " ".join(f"{l}->{r}" for l, r in transforms)
+    with OUTCOMES_LOG.open("a", encoding="utf-8") as f:
+        f.write(f"{today};{name};{'solved' if solved else 'abandoned'};{wires}\n")
+    print(f"  Logged {'solved' if solved else 'abandoned'} to {OUTCOMES_LOG.name}, "
+          f"updated {len(transforms)} role-combo weight(s).")
 
 
 def main() -> None:
