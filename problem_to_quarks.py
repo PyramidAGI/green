@@ -10,6 +10,9 @@ Four building blocks on top of quark_pairs.py:
 
 Run a demo:
     python problem_to_quarks.py "pressure too low, dirt dried on the paint"
+
+Inspect what the weights loop has learned:
+    python problem_to_quarks.py eval
 """
 
 import sys
@@ -17,12 +20,13 @@ from datetime import date
 from pathlib import Path
 
 from quark_pairs import (
-    base_score, load_quarks, load_weights, role, save_weights, score,
-    scan_used, unseen_ranked,
+    ROLE_SCORE, base_score, load_quarks, load_weights, role, save_weights,
+    score, scan_used, unseen_ranked,
 )
 
 SCRIPT_DIR = Path(__file__).parent
 MAPPINGS_LOG = SCRIPT_DIR / "mappings.log"
+OUTCOMES_LOG = SCRIPT_DIR / "outcomes.log"
 
 # A handful of everyday words per quark. Extend freely; misses are logged to
 # mappings.log so the table grows around the problems people actually bring.
@@ -141,7 +145,64 @@ def update_weights(wires, solved: bool, weights: dict, lr: float = 0.1) -> dict:
     return weights
 
 
+def read_outcomes() -> list[tuple[str, str, bool, list[tuple[str, str]]]]:
+    """Parse outcomes.log into (date, file, solved, wires) tuples."""
+    rows = []
+    if not OUTCOMES_LOG.exists():
+        return rows
+    for line in OUTCOMES_LOG.read_text(encoding="utf-8").splitlines():
+        parts = line.strip().split(";")
+        if len(parts) != 4:
+            continue
+        day, name, verdict, raw = parts
+        wires = [tuple(w.split("->")) for w in raw.split() if "->" in w]
+        rows.append((day, name, verdict == "solved", wires))
+    return rows
+
+
+def cmd_eval() -> None:
+    """Report what the weights loop has learned from outcomes.log."""
+    outcomes = read_outcomes()
+    if not outcomes:
+        print(f"No outcomes logged yet ({OUTCOMES_LOG.name} is empty).")
+        print("Build triangles with `p <problem>` in load_double_triangle.py,")
+        print("save them, and answer the solved/abandoned prompt to feed this.")
+        return
+
+    solved = sum(1 for _, _, s, _ in outcomes if s)
+    rate = 100 * solved / len(outcomes)
+    print(f"Outcomes logged: {len(outcomes)}   solved: {solved}"
+          f"   abandoned: {len(outcomes) - solved}   solve rate: {rate:.0f}%")
+
+    # Per role-combo tally from the logged wires.
+    combos: dict[str, list[int]] = {}
+    for _, _, ok, wires in outcomes:
+        for l, r in wires:
+            key = f"{role(l)}->{role(r)}"
+            sol, tot = combos.get(key, (0, 0))
+            combos[key] = (sol + (1 if ok else 0), tot + 1)
+
+    weights = load_weights()
+    print("\nRole-combo learning (solved/used  |  base -> learned weight):")
+    for key in sorted(combos, key=lambda k: -combos[k][1]):
+        sol, tot = combos[key]
+        a, b = key.split("->")
+        base = ROLE_SCORE.get((a, b), 1)
+        learned = weights.get((a, b))
+        moved = f"{base} -> {learned:.2f}" if learned is not None else f"{base} (unchanged)"
+        print(f"  {key:<7} {sol}/{tot:<3}  |  {moved}")
+
+    print("\nMost recent outcomes:")
+    for day, name, ok, wires in outcomes[-5:]:
+        verdict = "solved   " if ok else "abandoned"
+        print(f"  {day}  {verdict}  {name}  ({' '.join(f'{l}->{r}' for l, r in wires)})")
+
+
 def main(argv: list[str]) -> int:
+    if argv and argv[0] == "eval":
+        cmd_eval()
+        return 0
+
     problem = " ".join(argv) or "pressure too low, dirt dried on the paint, team morale dropping"
     quarks = load_quarks()
     used = scan_used({n.casefold() for n in quarks.values()})
