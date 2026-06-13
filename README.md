@@ -278,3 +278,72 @@ Is this a testable version of AGI? No — but the honest version is still worth 
 **The fair claim:** "a testable *framework* for grounded machine intelligence — a scaffold in which intelligence could be grown and measured." That's not a consolation prize; the field is full of capable models with no grounding and no eval discipline, and this is the complement: grounding and eval discipline with no model yet. The two halves are both necessary.
 
 The test that would change the answer is already written in this README: hand the system `business_central_tree.txt` — or better, a tree it has never seen, written by someone else — and have it produce a causal diagram and triangle accepted unchanged. The day that happens, the machine is doing a cognitive task autonomously. Then we argue about how general it is.
+
+## Appendix B: How the AI adapts to a problem by combining quarks
+
+`quark_pairs.py` already ranks single wires. Adapting to a problem is the step from *ranking pairs* to *assembling a whole triangle for a given problem*. Smallest-first:
+
+**1. A problem → quark mapper (the missing entry point).** Nothing today turns a problem into quarks. Add `problem_to_quarks.py` with a synonym table keyed by the 39 names:
+
+```python
+SYNONYMS = {
+    "force": ["pressure", "push", "load", "strength"],
+    "time":  ["old", "delay", "dried", "aged", "wait"],
+    "group": ["team", "attendance", "crowd", "meeting"],
+    # ... 39 entries
+}
+
+def words_to_quarks(text: str) -> list[tuple[str, float]]:
+    hits = {}
+    for word in text.casefold().split():
+        for quark, syns in SYNONYMS.items():
+            if word == quark or word in syns:
+                hits[quark] = hits.get(quark, 0) + 1
+    return sorted(hits.items(), key=lambda kv: -kv[1])
+```
+
+Log every miss to `mappings.log` so the table grows (Appendix A step 3). This is what makes it *adapt* — the vocabulary closes around new problems over time.
+
+**2. Score combinations, not just pairs.** `quark_pairs.score()` rates one wire. A triangle is 4–5 wires that should *cover roles*, not repeat them. Score the whole set:
+
+```python
+def triangle_score(wires: list[tuple[str, str]]) -> float:
+    pair_q = sum(score(l, r) for l, r in wires) / len(wires)
+    roles_used = {role(l) for l, _ in wires} | {role(r) for _, r in wires}
+    coverage = len(roles_used) / 4          # reward using all of T/O/A/S
+    redundancy = 1 - len(set(wires)) / len(wires)  # penalize duplicates
+    return pair_q * coverage * (1 - redundancy)
+```
+
+This makes the AI prefer a *balanced* combination (a sensor side + an action side + a social outcome) instead of five near-identical wires.
+
+**3. Assemble a candidate triangle for a problem.** Tie 1+2 together — this is the actual "adapt to the problem" function:
+
+```python
+def build_triangle(problem: str, quarks, used, k=5) -> list[tuple[str, str]]:
+    seeds = [q for q, _ in words_to_quarks(problem)]        # observable side
+    wires = []
+    for left in seeds:
+        # pin the left side, let suggest pick the best unseen action
+        ranked = unseen_ranked(quarks, used, role(left), "A")
+        for s, l, r in ranked:
+            if l == left and (l, r) not in wires:
+                wires.append((l, r)); break
+        if len(wires) >= k: break
+    return wires
+```
+
+`unseen_ranked` already exists — you're just pinning the left side to the problem's quarks. Output it as a `doubletriangle_draft.csv` (Appendix A step 5).
+
+**4. Close the feedback loop with a learnable matrix.** `ROLE_SCORE` is hand-written. Make it adapt: when a built triangle actually solves a problem (a criterion stops tripping), nudge up the scores of the role-combos it used; when one is abandoned, nudge down.
+
+```python
+def update_weights(wires, solved: bool, weights: dict, lr=0.1):
+    for l, r in wires:
+        key = (role(l), role(r))
+        weights[key] = weights.get(key, 1.0) + lr * (1 if solved else -1)
+```
+
+Persist `weights` to JSON, load it in `score()` instead of the static dict. Now the matrix is trained by outcomes — exactly the "machine revises its own model" milestone the README reaches for — and `eval` + `suggestions.log` are already the scaffolding for the signal.
+
+**Build order:** 2 and 3 are an afternoon on top of what exists. 1 unlocks new problems (do it next). 4 is the one that makes it genuinely *adaptive* rather than just combinatorial — but it needs a few logged solve/abandon outcomes first, so wire up the logging before the learning.
