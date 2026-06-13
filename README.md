@@ -306,6 +306,50 @@ def words_to_quarks(text: str) -> list[tuple[str, float]]:
 
 Log every miss to `mappings.log` so the table grows (Appendix A step 3). This is what makes it *adapt* — the vocabulary closes around new problems over time.
 
+The full table (as implemented in `problem_to_quarks.py`) gives a handful of everyday words to each of the 39 quarks:
+
+| Quark | Role | Synonyms |
+|-------|------|----------|
+| container | T | box, tank, vessel, bin, holder |
+| shield | T | guard, cover, protect, barrier, shelter |
+| channel | T | pipe, duct, path, route, hose |
+| support | T | stand, frame, base, prop, mount |
+| tool | T | device, instrument, equipment, machine, gear |
+| food | T | meal, feed, nutrient, fuel, supply |
+| data | T | record, info, reading, log, number |
+| nature | T | plant, soil, weather, environment, field |
+| radiation | O | light, sun, lux, heat, irradiance |
+| force | O | pressure, push, load, strength, tension |
+| energy | O | power, charge, voltage, yield, watt |
+| time | O | old, delay, dried, aged, wait, late, duration |
+| loc | O | place, position, location, where, spot |
+| event | O | incident, trigger, occurrence, alarm, happening |
+| problem | O | fault, issue, defect, trouble, failure |
+| pattern | O | trend, shape, recurring, regular, cycle |
+| stat | O | count, rate, level, measure, metric, amount |
+| normal | O | baseline, standard, expected, usual, default |
+| activity | O | work, action, hours, usage, busy |
+| fix | A | repair, mend, correct, patch, restore |
+| transport | A | move, carry, ship, deliver, haul |
+| drive | A | motor, actuate, spin, turn, propel |
+| animate | A | start, activate, wake, run, enliven |
+| compress | A | shrink, squeeze, shorten, pack, reduce |
+| expand | A | grow, stretch, widen, scale, enlarge |
+| waitfor | A | pause, hold, await, block, queue |
+| increase | A | raise, boost, more, amplify, up |
+| sequence | A | order, schedule, steps, sort, chain |
+| solve | A | resolve, answer, settle, handle, clear |
+| group | S | team, attendance, crowd, meeting, members |
+| conflict | S | dispute, clash, argument, tension, disagreement |
+| own | S | owner, belong, possess, responsible, assigned |
+| val | S | value, rating, worth, score, opinion |
+| pref | S | preference, choice, favor, like, want |
+| dominate | S | control, rule, overpower, lead, boss |
+| transaction | S | sale, deal, trade, exchange, purchase |
+| reward | S | thanks, prize, bonus, praise, recognition |
+| organization | S | structure, roster, role, rules, process |
+| contract | S | agreement, promise, deadline, commitment, deal |
+
 **2. Score combinations, not just pairs.** `quark_pairs.score()` rates one wire. A triangle is 4–5 wires that should *cover roles*, not repeat them. Score the whole set:
 
 ```python
