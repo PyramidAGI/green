@@ -283,6 +283,8 @@ The test that would change the answer is already written in this README: hand th
 
 `quark_pairs.py` already ranks single wires. Adapting to a problem is the step from *ranking pairs* to *assembling a whole triangle for a given problem*. Smallest-first:
 
+![How the Appendix B defs work together](appendix_b_flow.svg)
+
 **1. A problem → quark mapper (the missing entry point).** Nothing today turns a problem into quarks. Add `problem_to_quarks.py` with a synonym table keyed by the 39 names:
 
 ```python
