@@ -6,12 +6,15 @@ Commands:
   N               add configured transform by number
   k               list quarks
   k N M           add quark N -> quark M as a transform
+  p <problem>     auto-build transforms from a problem description
   l               save to file
   q               quit
 """
 
 from pathlib import Path
 from prompt_maker_cli import PromptMakerConfig
+from problem_to_quarks import build_triangle, triangle_score
+from quark_pairs import scan_used
 
 PROMA_DIR = Path(__file__).parent
 QUARKS_CSV = PROMA_DIR / "numbered quarks.csv"
@@ -74,7 +77,8 @@ def main() -> None:
     print("Configured transforms:")
     for i, (left, right) in enumerate(configured, 1):
         print(f"  {i:>2}. {left} -> {right}")
-    print("\nType a number, left -> right, or: k=quarks  k N M=quark transform  l=save  q=quit")
+    print("\nType a number, left -> right, or: k=quarks  k N M=quark transform"
+          "  p <problem>=auto-build  l=save  q=quit")
 
     while True:
         try:
@@ -92,6 +96,22 @@ def main() -> None:
                 save(transforms)
             else:
                 print("No transforms to save.")
+            continue
+
+        if line.lower() == "p" or line.lower().startswith("p "):
+            problem = line[1:].strip()
+            if not problem:
+                print("  Use: p <problem description>")
+                continue
+            used = scan_used({n.casefold() for n in quarks.values()})
+            wires = build_triangle(problem, quarks, used)
+            if not wires:
+                print("  No quarks recognised in that problem. Try other words.")
+                continue
+            for left, right in wires:
+                transforms.append((left, right))
+                print(f"  [{len(transforms)}] {left} -> {right}")
+            print(f"  triangle_score = {triangle_score(wires):.3f}")
             continue
 
         if line.lower().startswith("k"):
