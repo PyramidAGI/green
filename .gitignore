@@ -1,0 +1,8 @@
+# Runtime learning state (regenerated; delete to reset to the hand-written prior)
+weights.json
+outcomes.log
+mappings.log
+
+# Python
+__pycache__/
+*.pyc

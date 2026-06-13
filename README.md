@@ -395,3 +395,15 @@ def update_weights(wires, solved: bool, weights: dict, lr=0.1):
 Persist `weights` to JSON, load it in `score()` instead of the static dict. Now the matrix is trained by outcomes — exactly the "machine revises its own model" milestone the README reaches for — and `eval` + `suggestions.log` are already the scaffolding for the signal.
 
 **Build order:** 2 and 3 are an afternoon on top of what exists. 1 unlocks new problems (do it next). 4 is the one that makes it genuinely *adaptive* rather than just combinatorial — but it needs a few logged solve/abandon outcomes first, so wire up the logging before the learning.
+
+### The weights.json learning loop (as built)
+
+All four defs live in `problem_to_quarks.py`, and the learning loop is wired end to end:
+
+1. **Generate.** In `load_double_triangle.py`, `p <problem>` calls `build_triangle` to draft wires from a problem description, printing the combination's `triangle_score`.
+2. **Grade.** When you save (`l`), `record_outcome` asks *"Did this triangle solve the problem? [y/N/skip]"*. `skip`/Enter logs nothing.
+3. **Learn.** A `y`/`n` answer calls `update_weights`, which nudges each wire's role-combo by ±`lr` (default 0.1). Unseen combos seed from the hand-written matrix (`base_score`), so a single grade refines the prior (e.g. `O->A` 3 → 3.1) instead of resetting it to 1.0.
+4. **Persist.** The updated weights are written to `weights.json`, and the verdict is appended to `outcomes.log` as `date;file;solved/abandoned;wires`.
+5. **Apply.** `quark_pairs.score()` reads `weights.json` on import: if a role-combo has a learned weight it wins, otherwise the static `ROLE_SCORE` matrix is used. So every later `suggest`, `build_triangle`, and `triangle_score` run reflects what actually worked.
+
+`weights.json` and `outcomes.log` are generated at runtime (not committed) — delete them to reset the system to its hand-written prior. The `grid` map still shows `base_score`, so the static matrix stays inspectable underneath the learned layer.
